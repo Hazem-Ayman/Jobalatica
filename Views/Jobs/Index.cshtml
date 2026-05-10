@@ -1,0 +1,76 @@
+@model Jobalatica.Models.ViewModels.JobSearchViewModel
+@{
+    ViewData["Title"] = "Search Jobs";
+}
+
+<div class="flex flex-col md:flex-row gap-8">
+    <!-- Sidebar Filters -->
+    <aside class="w-full md:w-72 flex-shrink-0">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 sticky top-4">
+            <h2 class="text-lg font-bold mb-6">Filters</h2>
+            
+            <form hx-get="/Jobs" 
+                  hx-trigger="change, keyup delay:400ms from:input[type='text']" 
+                  hx-target="#job-results" 
+                  hx-push-url="true"
+                  class="space-y-6">
+                
+                <div>
+                    <label class="block text-sm font-semibold mb-2 uppercase tracking-wider text-gray-500">Keywords</label>
+                    <input type="text" name="query" value="@Model.Query" placeholder="Title, skill, or company" 
+                           class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold mb-2 uppercase tracking-wider text-gray-500">Location</label>
+                    <select name="location" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                        <option value="">All Locations</option>
+                        <option value="Cairo" selected="@(Model.Location == "Cairo")">Cairo</option>
+                        <option value="Alexandria" selected="@(Model.Location == "Alexandria")">Alexandria</option>
+                        <option value="Dubai" selected="@(Model.Location == "Dubai")">Dubai</option>
+                        <option value="Riyadh" selected="@(Model.Location == "Riyadh")">Riyadh</option>
+                        <option value="Remote" selected="@(Model.Location == "Remote")">Remote</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold mb-2 uppercase tracking-wider text-gray-500">Experience</label>
+                    <div class="space-y-2">
+                        @foreach (var level in new[] { "Entry", "Mid", "Senior", "Lead" })
+                        {
+                            <label class="inline-flex items-center w-full cursor-pointer">
+                                <input type="radio" name="experienceLevel" value="@level" class="sr-only peer" checked="@(Model.ExperienceLevel == level)">
+                                <div class="w-full p-2 text-center text-sm font-medium border border-gray-200 rounded-lg peer-checked:bg-blue-600 peer-checked:text-white dark:border-gray-700 dark:bg-gray-700 dark:text-gray-400">
+                                    @level
+                                </div>
+                            </label>
+                        }
+                        <label class="inline-flex items-center w-full cursor-pointer">
+                            <input type="radio" name="experienceLevel" value="" class="sr-only peer" checked="@(string.IsNullOrEmpty(Model.ExperienceLevel))">
+                            <div class="w-full p-2 text-center text-sm font-medium border border-gray-200 rounded-lg peer-checked:bg-blue-600 peer-checked:text-white dark:border-gray-700 dark:bg-gray-700 dark:text-gray-400">
+                                Any
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold mb-2 uppercase tracking-wider text-gray-500">Min Salary (Annual)</label>
+                    <input type="number" name="salaryMin" value="@Model.SalaryMin" placeholder="0" 
+                           class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                </div>
+
+                <button type="button" onclick="window.location.href='/Jobs'" class="w-full text-gray-600 hover:text-blue-600 text-sm font-medium pt-2">
+                    Clear All Filters
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- Main Results Area -->
+    <div class="flex-grow">
+        <div id="job-results" class="min-h-[400px]">
+            @await Html.PartialAsync("_JobResults", Model)
+        </div>
+    </div>
+</div>

@@ -1,0 +1,227 @@
+@using System.Text.Json
+@model Jobalatica.Models.ViewModels.RoleDetailViewModel
+@{
+    ViewData["Title"] = $"{Model.JobTitle} Market Analysis";
+}
+
+<div class="mb-8">
+    <nav class="flex mb-4 text-sm font-medium text-gray-500" aria-label="Breadcrumb">
+        <ol class="inline-flex items-center space-x-1 md:space-x-3">
+            <li><a href="/Rankings" class="hover:text-blue-600">Rankings</a></li>
+            <li><span class="mx-2">/</span></li>
+            <li class="text-gray-900 dark:text-white">@Model.JobTitle</li>
+        </ol>
+    </nav>
+    <h1 class="text-3xl font-bold text-gray-900 dark:text-white">@Model.JobTitle Intelligence</h1>
+</div>
+
+<!-- Stat Cards -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+        <span class="block text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Total Openings</span>
+        <div class="flex items-end gap-2">
+            <span class="text-3xl font-bold text-blue-600">@Model.SampleSize</span>
+            <span class="text-sm text-green-500 font-bold mb-1">+12% vs last month</span>
+        </div>
+    </div>
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+        <span class="block text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Market Avg Salary</span>
+        <div class="flex items-end gap-2">
+            <span class="text-3xl font-bold text-gray-900 dark:text-white">
+                $@(((Model.AvgSalaryMin + Model.AvgSalaryMax) / 2).ToString("N0"))
+            </span>
+            <span class="text-sm text-gray-400 mb-1">USD / year</span>
+        </div>
+    </div>
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+        <span class="block text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Demand Score</span>
+        <div class="flex items-end gap-2">
+            <span class="text-3xl font-bold text-blue-600">88/100</span>
+            <div class="w-24 bg-gray-200 rounded-full h-2.5 mb-2.5 dark:bg-gray-700 ml-2">
+                <div class="bg-blue-600 h-2.5 rounded-full" style="width: 88%"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+    <!-- Demand Trend -->
+    <div class="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-8 shadow-sm">
+        <h2 class="text-xl font-bold mb-8">Hiring Velocity Trend</h2>
+        <div class="h-[300px]">
+            @if (Model.Trend.Any())
+            {
+                <canvas id="demandTrendChart"></canvas>
+            }
+            else
+            {
+                <div class="flex items-center justify-center h-full bg-gray-50 dark:bg-gray-700 rounded-xl border-2 border-dashed border-gray-200 dark:border-gray-600 italic text-gray-400">
+                    Not enough historical data yet for trend analysis
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Top Skills for this Role -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-8 shadow-sm">
+        <h2 class="text-xl font-bold mb-8">Skill Priority</h2>
+        <div class="h-[300px]">
+            <canvas id="roleSkillsChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+    <!-- Sample Jobs -->
+    <div class="lg:col-span-2">
+        <h2 class="text-2xl font-bold mb-6">Sample Postings for @Model.JobTitle</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            @foreach (var job in Model.SampleJobs)
+            {
+                @await Html.PartialAsync("_JobCard", job)
+            }
+        </div>
+        <div class="mt-6 text-center">
+            <a href="/Jobs?query=@Model.JobTitle" class="inline-block text-white bg-blue-700 hover:bg-blue-800 font-bold rounded-lg text-sm px-8 py-3 dark:bg-blue-600 dark:hover:bg-blue-700">
+                View All @Model.JobTitle Jobs
+            </a>
+        </div>
+    </div>
+
+    <!-- Salary Breakdown Table -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-8 shadow-sm h-fit relative overflow-hidden">
+        <h2 class="text-xl font-bold mb-6">Salary by Experience</h2>
+        
+        <div class="space-y-4 @(!Model.HasContributedSalary ? "filter blur-[2px] opacity-40 select-none pointer-events-none" : "")">
+            <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <span class="font-bold">Entry Level</span>
+                <span class="text-blue-600 dark:text-blue-400 font-mono font-bold">$45k - $60k</span>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-blue-50 dark:bg-blue-900 border border-blue-100 dark:border-blue-800 rounded-lg">
+                <span class="font-bold">Mid Level</span>
+                <span class="text-blue-700 dark:text-blue-300 font-mono font-bold">$70k - $95k</span>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <span class="font-bold">Senior Level</span>
+                <span class="text-blue-600 dark:text-blue-400 font-mono font-bold">$110k - $150k</span>
+            </div>
+            <div class="flex justify-between items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                <span class="font-bold">Lead / Arch</span>
+                <span class="text-blue-600 dark:text-blue-400 font-mono font-bold">$160k+</span>
+            </div>
+        </div>
+
+        @if (!Model.HasContributedSalary)
+        {
+            <div class="absolute inset-0 flex items-center justify-center p-6 text-center bg-white/10 dark:bg-gray-800/10 backdrop-blur-[1px]">
+                <div>
+                    <svg class="w-10 h-10 text-blue-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    <h4 class="font-bold mb-2">Unlock Detailed Salary Data</h4>
+                    <p class="text-xs text-gray-500 mb-4 px-4">Contribute your salary data to help the community and unlock full market insights.</p>
+                    <a href="/Salary/Submit" class="inline-block bg-blue-600 text-white text-xs font-bold px-6 py-2.5 rounded-lg hover:bg-blue-700 transition-colors">Contribute Now</a>
+                </div>
+            </div>
+        }
+
+        <p class="text-xs text-gray-400 mt-6 italic @(!Model.HasContributedSalary ? "invisible" : "")">Blended data from @Model.SampleSize job postings and community reports.</p>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+    <!-- City Breakdown (Locked) -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-8 shadow-sm relative overflow-hidden">
+        <h2 class="text-xl font-bold mb-6">Salary by Location</h2>
+        <div class="@(!Model.HasContributedSalary ? "filter blur-md opacity-20" : "")">
+             <table class="w-full text-sm text-left">
+                <thead class="text-xs text-gray-500 uppercase">
+                    <tr><th class="py-3">City</th><th class="py-3 text-right">Avg. Salary</th></tr>
+                </thead>
+                <tbody class="font-bold">
+                    <tr class="border-b border-gray-50"><td class="py-3">Dubai, UAE</td><td class="py-3 text-right">$95,400</td></tr>
+                    <tr class="border-b border-gray-50"><td class="py-3">Riyadh, SA</td><td class="py-3 text-right">$82,000</td></tr>
+                    <tr class="border-b border-gray-50"><td class="py-3">Cairo, EG</td><td class="py-3 text-right">$32,000</td></tr>
+                </tbody>
+             </table>
+        </div>
+        @if (!Model.HasContributedSalary)
+        {
+            <div class="absolute inset-0 flex items-center justify-center">
+                <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full">LOCKED INSIGHT</span>
+            </div>
+        }
+    </div>
+    
+    <!-- Top Companies Hiring -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-8 shadow-sm">
+        <h2 class="text-xl font-bold mb-6">Top Companies for this Role</h2>
+        <div class="flex flex-wrap gap-4">
+            @foreach (var company in new[] { "Vodafone", "Valeo", "Talabat", "Instabug", "Careem" })
+            {
+                <div class="flex items-center px-4 py-2 bg-gray-50 dark:bg-gray-700 rounded-xl border border-gray-100 dark:border-gray-600">
+                    <div class="w-8 h-8 rounded-lg bg-blue-100 mr-3 flex items-center justify-center text-blue-600 font-bold">@company[0]</div>
+                    <span class="font-bold text-sm">@company</span>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        @if (Model.Trend.Any())
+        {
+            <text>
+            // Demand Trend Chart
+            const trendCtx = document.getElementById('demandTrendChart').getContext('2d');
+            new Chart(trendCtx, {
+                type: 'line',
+                data: {
+                    labels: @Html.Raw(JsonSerializer.Serialize(Model.Trend.Select(t => t.SnapshotDate.ToString("MMM dd")))),
+                    datasets: [{
+                        label: 'Active Postings',
+                        data: @Html.Raw(JsonSerializer.Serialize(Model.Trend.Select(t => t.PostingCount))),
+                        borderColor: 'rgb(59, 130, 246)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: false, grid: { color: 'rgba(156, 163, 175, 0.1)' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+            </text>
+        }
+
+        // Role Skills Chart (Bar)
+        const skillsCtx = document.getElementById('roleSkillsChart').getContext('2d');
+        new Chart(skillsCtx, {
+            type: 'bar',
+            data: {
+                labels: @Html.Raw(JsonSerializer.Serialize(Model.CommonSkills.Select(s => s.Name))),
+                datasets: [{
+                    label: 'Frequency',
+                    data: [95, 88, 76, 65, 54, 42, 38, 25],
+                    backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { display: false, beginAtZero: true },
+                    y: { grid: { display: false } }
+                }
+            }
+        });
+    </script>
+}

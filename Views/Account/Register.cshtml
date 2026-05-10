@@ -1,0 +1,75 @@
+@model Jobalatica.Models.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Create your account";
+}
+
+<div class="flex items-center justify-center min-h-[80vh]">
+    <div class="w-full max-w-md p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700">
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Join JobPulse</h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-2">Start tracking your market value today.</p>
+        </div>
+
+        <form asp-action="Register" method="post" class="space-y-6">
+            <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm font-medium"></div>
+
+            <div>
+                <label asp-for="DisplayName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Display Name</label>
+                <input asp-for="DisplayName" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="John Doe">
+                <span asp-validation-for="DisplayName" class="text-red-500 text-xs mt-1"></span>
+            </div>
+
+            <div>
+                <label asp-for="Email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email Address</label>
+                <input asp-for="Email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="name@company.com">
+                <span asp-validation-for="Email" class="text-red-500 text-xs mt-1"></span>
+            </div>
+
+            <div>
+                <label asp-for="Password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
+                <input asp-for="Password" id="password" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                <div class="mt-2 h-1 w-full bg-gray-200 rounded-full overflow-hidden">
+                    <div id="password-strength" class="h-full bg-gray-300 transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <span asp-validation-for="Password" class="text-red-500 text-xs mt-1"></span>
+            </div>
+
+            <div>
+                <label asp-for="ConfirmPassword" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Confirm Password</label>
+                <input asp-for="ConfirmPassword" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                <span asp-validation-for="ConfirmPassword" class="text-red-500 text-xs mt-1"></span>
+            </div>
+
+            <button type="submit" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg text-sm px-5 py-3 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                Create Account
+            </button>
+
+            <p class="text-sm font-light text-gray-500 dark:text-gray-400 text-center">
+                Already have an account? <a asp-action="Login" class="font-medium text-blue-600 hover:underline dark:text-blue-500">Sign in</a>
+            </p>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        const passwordInput = document.getElementById('password');
+        const strengthBar = document.getElementById('password-strength');
+
+        passwordInput.addEventListener('input', () => {
+            const val = passwordInput.value;
+            let strength = 0;
+            if (val.length > 0) strength += 25;
+            if (val.length > 8) strength += 25;
+            if (/[A-Z]/.test(val)) strength += 25;
+            if (/[0-9]/.test(val) || /[^A-Za-z0-9]/.test(val)) strength += 25;
+
+            strengthBar.style.width = strength + '%';
+            if (strength <= 25) strengthBar.className = 'h-full bg-red-500';
+            else if (strength <= 50) strengthBar.className = 'h-full bg-orange-500';
+            else if (strength <= 75) strengthBar.className = 'h-full bg-yellow-400';
+            else strengthBar.className = 'h-full bg-green-500';
+        });
+    </script>
+}

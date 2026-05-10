@@ -1,8 +1,228 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@using System.Text.Json
+@model Jobalatica.Models.ViewModels.HomeViewModel
+@{
+    ViewData["Title"] = "Market Intelligence for Job Seekers";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<!-- Hero Section -->
+<section class="bg-white dark:bg-gray-900 rounded-2xl p-8 md:p-12 mb-12 shadow-sm border border-gray-100 dark:border-gray-800">
+    <div class="max-w-3xl mx-auto text-center">
+        <h1 class="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-4 tracking-tight">
+            Stop guessing. <span class="text-blue-600">Start winning.</span>
+        </h1>
+        <p class="text-lg text-gray-600 dark:text-gray-400 mb-8">
+            Real-time market data on salaries, demand, and skills. Built for the modern job seeker.
+        </p>
+        
+        <form asp-controller="Jobs" asp-action="Index" method="get" class="flex flex-col md:flex-row gap-2">
+            <input type="text" name="query" placeholder="Job title or skill..." class="flex-grow bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-4 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+            <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-8 py-4 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                Analyze Market
+            </button>
+        </form>
+    </div>
+</section>
+
+<!-- Stats Grid -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+    <div class="bg-white p-6 rounded-xl border border-gray-100 dark:bg-gray-800 dark:border-gray-700 text-center">
+        <span class="block text-3xl font-bold text-blue-600 mb-1" data-count-to="12400">0</span>
+        <span class="text-sm text-gray-500 uppercase tracking-wider font-semibold">Live Jobs</span>
+    </div>
+    <div class="bg-white p-6 rounded-xl border border-gray-100 dark:bg-gray-800 dark:border-gray-700 text-center">
+        <span class="block text-3xl font-bold text-blue-600 mb-1" data-count-to="850">0</span>
+        <span class="text-sm text-gray-500 uppercase tracking-wider font-semibold">Companies</span>
+    </div>
+    <div class="bg-white p-6 rounded-xl border border-gray-100 dark:bg-gray-800 dark:border-gray-700 text-center">
+        <span class="block text-3xl font-bold text-blue-600 mb-1" data-count-to="45">0</span>
+        <span class="text-sm text-gray-500 uppercase tracking-wider font-semibold">Skills Tracked</span>
+    </div>
+    <div class="bg-white p-6 rounded-xl border border-gray-100 dark:bg-gray-800 dark:border-gray-700 text-center">
+        <span class="block text-3xl font-bold text-blue-600 mb-1" data-count-to="1200">0</span>
+        <span class="text-sm text-gray-500 uppercase tracking-wider font-semibold">Salary Points</span>
+    </div>
 </div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+    <!-- Trending Roles Chart -->
+    <div class="lg:col-span-2 bg-white p-6 rounded-xl border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
+        <h2 class="text-xl font-bold mb-6 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+            Trending Roles
+        </h2>
+        <canvas id="trendingRolesChart" height="300"></canvas>
+    </div>
+
+    <!-- Top Skills Cloud -->
+    <div class="bg-white p-6 rounded-xl border border-gray-100 dark:bg-gray-800 dark:border-gray-700">
+        <h2 class="text-xl font-bold mb-6 flex items-center">
+            <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+            High-Demand Skills
+        </h2>
+        <div class="flex flex-wrap gap-2">
+            @foreach (var skill in Model.TopSkills)
+            {
+                var sizeClass = skill.TotalJobMentions switch
+                {
+                    > 50 => "text-lg px-4 py-2 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+                    > 20 => "text-sm px-3 py-1.5 bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300",
+                    _ => "text-xs px-2 py-1 bg-gray-50 text-gray-600 dark:bg-gray-700 dark:text-gray-400"
+                };
+                <a href="/Rankings/RoleDetail?title=@skill.Name" class="font-semibold rounded-full hover:scale-105 transition-transform @sizeClass">
+                    @skill.Name
+                </a>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Recent Jobs Section -->
+<div class="mb-12">
+    <div class="flex justify-between items-end mb-6">
+        <h2 class="text-2xl font-bold">Recent Opportunities</h2>
+        <a asp-controller="Jobs" asp-action="Index" class="text-blue-600 hover:underline font-medium">View all jobs →</a>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        @foreach (var job in Model.RecentJobs)
+        {
+            @await Html.PartialAsync("_JobCard", job)
+        }
+    </div>
+</div>
+
+<!-- Salary Modal -->
+@if (ViewBag.ShowSalaryPopup == true)
+{
+    <div id="salary-modal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+        <div class="relative w-full max-w-md max-h-full">
+            <div class="relative bg-white rounded-2xl shadow dark:bg-gray-700 border-2 border-blue-500">
+                <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="salary-modal">
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                    </svg>
+                    <span class="sr-only">Close modal</span>
+                </button>
+                <div class="p-6 text-center">
+                    <div class="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 00-2 2v1h16V6a2 2 0 00-2-2H4z"></path><path fill-rule="evenodd" d="M18 9H2v5a2 2 0 002 2h12a2 2 0 002-2V9zM4 13a1 1 0 011-1h1a1 1 0 110 2H5a1 1 0 01-1-1zm5-1a1 1 0 100 2h1a1 1 0 100-2H9z" clip-rule="evenodd"></path></svg>
+                    </div>
+                    <h3 class="mb-5 text-xl font-bold text-gray-900 dark:text-white">Help the community!</h3>
+                    <p class="mb-6 text-gray-500 dark:text-gray-400">
+                        Submit your salary anonymously and unlock **exclusive market insights**, including salary percentiles and regional breakdowns!
+                    </p>
+                    <a href="/Salary/Submit" class="text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-xl text-sm inline-flex items-center px-8 py-3 text-center mr-2 transition-all">
+                        Contribute Now
+                    </a>
+                    <button data-modal-hide="salary-modal" type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-gray-200 rounded-xl border border-gray-200 text-sm font-bold px-5 py-3 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">Maybe later</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Personalized Feed / Teaser Section -->
+<div class="relative overflow-hidden rounded-2xl bg-blue-600 p-8 md:p-12 text-white shadow-xl">
+    <div class="relative z-10 max-w-2xl">
+        <h2 class="text-3xl font-bold mb-4">Personalized Recommendations</h2>
+        
+        @if (Model.PersonalizedJobs != null)
+        {
+            <p class="mb-8 text-blue-100">Based on your skills profile, here are the best matches for you right now.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                @foreach (var job in Model.PersonalizedJobs)
+                {
+                    @await Html.PartialAsync("_JobCard", job)
+                }
+            </div>
+        }
+        else
+        {
+            <p class="mb-8 text-blue-100 text-lg">Create a profile and select your skills to see jobs that match your expertise.</p>
+            <div class="flex gap-4">
+                <a asp-controller="Account" asp-action="Register" class="bg-white text-blue-600 px-8 py-3 rounded-lg font-bold hover:bg-gray-100 transition-colors">Create Free Account</a>
+                <a asp-controller="Account" asp-action="Login" class="bg-blue-700 text-white px-8 py-3 rounded-lg font-bold hover:bg-blue-800 transition-colors">Sign In</a>
+            </div>
+            
+            <!-- Blurred Teaser Cards -->
+            <div class="absolute -right-4 -bottom-4 opacity-20 hidden lg:block transform rotate-3 scale-110 pointer-events-none">
+                <div class="grid grid-cols-2 gap-4 filter blur-sm">
+                    <div class="w-64 h-48 bg-white rounded-xl"></div>
+                    <div class="w-64 h-48 bg-white rounded-xl"></div>
+                    <div class="w-64 h-48 bg-white rounded-xl"></div>
+                    <div class="w-64 h-48 bg-white rounded-xl"></div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Trending Roles Chart
+        const labels = @Html.Raw(JsonSerializer.Serialize(Model.TopRoles.Select(r => r.Title)));
+        const data = @Html.Raw(JsonSerializer.Serialize(Model.TopRoles.Select(r => r.Count)));
+
+        new Chart(document.getElementById('trendingRolesChart'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Postings',
+                    data: data,
+                    backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                    borderColor: 'rgb(59, 130, 246)',
+                    borderWidth: 1,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        beginAtZero: true
+                    },
+                    y: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+
+        // Animated Stat Counters
+        document.addEventListener('DOMContentLoaded', () => {
+            const counters = document.querySelectorAll('[data-count-to]');
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-count-to'));
+                const duration = 1500;
+                let startTime = null;
+
+                const animate = (timestamp) => {
+                    if (!startTime) startTime = timestamp;
+                    const progress = timestamp - startTime;
+                    const current = Math.min(Math.floor((progress / duration) * target), target);
+                    counter.innerText = current.toLocaleString();
+                    
+                    if (progress < duration) {
+                        requestAnimationFrame(animate);
+                    }
+                };
+                
+                requestAnimationFrame(animate);
+            });
+        });
+
+        // Show Salary Modal on load if it exists in DOM
+        document.addEventListener('DOMContentLoaded', () => {
+            const modalEl = document.getElementById('salary-modal');
+            if (modalEl) {
+                const modal = new Modal(modalEl);
+                modal.show();
+            }
+        });
+    </script>
+}
