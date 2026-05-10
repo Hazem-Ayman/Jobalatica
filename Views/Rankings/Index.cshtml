@@ -1,0 +1,127 @@
+@using System.Text.Json
+@model Jobalatica.Models.ViewModels.RankingsViewModel
+@{
+    ViewData["Title"] = "Market Rankings";
+}
+
+<div class="mb-12">
+    <h1 class="text-3xl font-bold mb-4">Market Demand Rankings</h1>
+    <p class="text-gray-600 dark:text-gray-400">Analysis based on the last 30 days of market activity.</p>
+</div>
+
+<!-- Top Roles Chart Section -->
+<section class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-8 mb-12">
+    <div class="flex justify-between items-center mb-8">
+        <h2 class="text-xl font-bold">Top 15 Most Demanded Roles</h2>
+        <div class="flex bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
+            <button class="px-4 py-1.5 text-xs font-bold rounded-md bg-white dark:bg-gray-600 shadow-sm">Monthly</button>
+            <button class="px-4 py-1.5 text-xs font-bold text-gray-500">Quarterly</button>
+        </div>
+    </div>
+    
+    <div class="h-[400px]">
+        <canvas id="topRolesChart"></canvas>
+    </div>
+    
+    <div class="mt-8 overflow-x-auto">
+        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                <tr>
+                    <th class="px-6 py-3">Rank</th>
+                    <th class="px-6 py-3">Role Title</th>
+                    <th class="px-6 py-3 text-center">Open Postings</th>
+                    <th class="px-6 py-3 text-center">Trend</th>
+                    <th class="px-6 py-3 text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (int i = 0; i < Model.TopRoles.Count; i++)
+                {
+                    var role = Model.TopRoles[i];
+                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
+                        <td class="px-6 py-4 font-bold text-gray-900 dark:text-white">@(i + 1)</td>
+                        <td class="px-6 py-4 font-semibold text-gray-900 dark:text-white">@role.Title</td>
+                        <td class="px-6 py-4 text-center">@role.Count</td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="text-green-500 flex justify-center items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+                                @(12 - i)%
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 text-right">
+                            <a href="/Rankings/RoleDetail?title=@role.Title" class="text-blue-600 hover:underline font-bold">Details</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
+
+<!-- Top Skills Section -->
+<section>
+    <div class="flex justify-between items-center mb-8">
+        <h2 class="text-2xl font-bold">Top Industry Skills</h2>
+        <span class="text-sm text-gray-500">Updated every 24 hours</span>
+    </div>
+    
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+        @foreach (var skill in Model.TopSkills)
+        {
+            <a href="/Rankings/RoleDetail?title=@skill.Name" class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 group">
+                <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300 mb-4 inline-block">@skill.Category</span>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600">@skill.Name</h3>
+                <div class="flex items-end justify-between">
+                    <div>
+                        <span class="block text-2xl font-mono font-bold text-gray-900 dark:text-white">@skill.TotalJobMentions</span>
+                        <span class="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">Postings</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+                            High
+                        </span>
+                    </div>
+                </div>
+            </a>
+        }
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        const labels = @Html.Raw(JsonSerializer.Serialize(Model.TopRoles.Select(r => r.Title)));
+        const data = @Html.Raw(JsonSerializer.Serialize(Model.TopRoles.Select(r => r.Count)));
+
+        new Chart(document.getElementById('topRolesChart'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Job Postings',
+                    data: data,
+                    backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                    borderColor: 'rgb(59, 130, 246)',
+                    borderWidth: 1,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        beginAtZero: true
+                    },
+                    y: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    </script>
+}

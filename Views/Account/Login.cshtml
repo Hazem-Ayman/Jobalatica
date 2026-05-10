@@ -1,0 +1,49 @@
+@model Jobalatica.Models.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Sign in to your account";
+}
+
+<div class="flex items-center justify-center min-h-[80vh]">
+    <div class="w-full max-w-md p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700">
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Welcome Back</h1>
+            <p class="text-gray-500 dark:text-gray-400 mt-2">Sign in to access your market data.</p>
+        </div>
+
+        <form asp-action="Login" method="post" class="space-y-6">
+            <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm font-medium"></div>
+
+            <div>
+                <label asp-for="Email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email Address</label>
+                <input asp-for="Email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="name@company.com">
+                <span asp-validation-for="Email" class="text-red-500 text-xs mt-1"></span>
+            </div>
+
+            <div>
+                <div class="flex justify-between mb-2">
+                    <label asp-for="Password" class="text-sm font-medium text-gray-900 dark:text-white">Password</label>
+                    <a href="#" class="text-sm text-blue-600 hover:underline">Forgot password?</a>
+                </div>
+                <input asp-for="Password" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
+                <span asp-validation-for="Password" class="text-red-500 text-xs mt-1"></span>
+            </div>
+
+            <div class="flex items-center">
+                <input asp-for="RememberMe" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                <label asp-for="RememberMe" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">Remember me</label>
+            </div>
+
+            <button type="submit" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg text-sm px-5 py-3 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                Sign In
+            </button>
+
+            <p class="text-sm font-light text-gray-500 dark:text-gray-400 text-center">
+                New here? <a asp-action="Register" class="font-medium text-blue-600 hover:underline dark:text-blue-500">Create a free account</a>
+            </p>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

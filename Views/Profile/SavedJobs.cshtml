@@ -1,0 +1,54 @@
+@model List<Jobalatica.Models.Entities.SavedJob>
+@{
+    ViewData["Title"] = "My Saved Jobs";
+}
+
+<div class="flex flex-col lg:flex-row gap-8">
+    <!-- Left Sidebar -->
+    <aside class="w-full lg:w-72 flex-shrink-0">
+        <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 text-center sticky top-4">
+            <nav class="space-y-2">
+                <a href="/Profile" class="flex items-center p-3 text-sm font-bold text-gray-600 hover:bg-gray-50 rounded-xl dark:text-gray-400 dark:hover:bg-gray-700">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    Settings
+                </a>
+                <a href="/Profile/SavedJobs" class="flex items-center p-3 text-sm font-bold bg-blue-50 text-blue-700 rounded-xl dark:bg-blue-900 dark:text-blue-200">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                    Saved Jobs
+                </a>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Right Content: Saved Jobs List -->
+    <div class="flex-grow">
+        <h2 class="text-2xl font-bold mb-8">Saved Opportunities (@Model.Count)</h2>
+
+        @if (!Model.Any())
+        {
+            <div class="bg-white dark:bg-gray-800 rounded-2xl p-12 text-center border border-dashed border-gray-300 dark:border-gray-600">
+                <svg class="w-16 h-16 text-gray-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
+                <h3 class="text-xl font-bold mb-2">No jobs saved yet</h3>
+                <p class="text-gray-500 mb-6">Explore the market and save jobs you're interested in.</p>
+                <a href="/Jobs" class="inline-block bg-blue-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors">Browse Jobs</a>
+            </div>
+        }
+        else
+        {
+            <div class="grid grid-cols-1 gap-6">
+                @foreach (var saved in Model)
+                {
+                    <div class="relative group">
+                        @await Html.PartialAsync("_JobCard", saved.Job)
+                        
+                        <form hx-post="/Jobs/Unsave?jobId=@saved.JobId" hx-swap="outerHTML" hx-target="closest .group" class="absolute top-4 right-14">
+                            <button type="submit" class="p-2 bg-white dark:bg-gray-700 rounded-full shadow-md text-red-500 hover:bg-red-50 transition-colors border border-gray-100 dark:border-gray-600" title="Remove from saved">
+                                <svg class="w-5 h-5" fill="currentColor" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </form>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</div>
