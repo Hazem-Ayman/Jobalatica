@@ -33,8 +33,8 @@ namespace Jobalatica.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var topRoles = await _rankingService.GetTopRolesAsync(10);
-            var topSkills = await _rankingService.GetTopSkillsAsync(10);
+            var topRoles = await _rankingService.GetTopRolesAsync(15);
+            var topSkills = await _rankingService.GetTopSkillsAsync(15);
             var recentJobs = await _jobService.GetRecentAsync(6);
 
             List<Job>? personalizedJobs = null;
@@ -69,6 +69,15 @@ namespace Jobalatica.Controllers
                 RecentJobs = recentJobs,
                 PersonalizedJobs = personalizedJobs
             };
+
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                var userId = _userManager.GetUserId(User);
+                if (userId != null)
+                {
+                    vm.SavedJobIds = await _jobService.GetSavedJobIdsAsync(userId);
+                }
+            }
 
             ViewBag.ShowSalaryPopup = showSalaryPopup;
 

@@ -41,7 +41,9 @@ namespace Jobalatica.Controllers
             var vm = new ProfileViewModel
             {
                 DisplayName = user.DisplayName,
-                ExperienceLevel = user.ExperienceLevel,
+                JobTitle = user.JobTitle,
+                CompanyName = user.CompanyName,
+                ProfilePicture = user.ProfilePicture,
                 AllSkills = allSkills,
                 UserSkillIds = user.UserSkills.Select(us => us.SkillId).ToList(),
                 SavedJobs = user.SavedJobs.ToList()
@@ -52,36 +54,90 @@ namespace Jobalatica.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UploadPhoto(IFormFile? img_file)
+        {
+            if (img_file == null || img_file.Length == 0) return RedirectToAction(nameof(Index));
+
+            var userId = _userManager.GetUserId(User);
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null) return NotFound();
+
+            try
+            {
+                // Strict extension check
+                var ext = Path.GetExtension(img_file.FileName).ToLower();
+                var allowed = new[] { ".jpg", ".jpeg", ".png", ".webp" };
+                if (!allowed.Contains(ext)) return RedirectToAction(nameof(Index));
+
+                // Path resolution
+                var webRoot = _hostEnvironment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+                var path = Path.Combine(webRoot, "Img");
+                if (!Directory.Exists(path)) Directory.CreateDirectory(path);
+
+                // Safe filename (GUID only to avoid weird char issues)
+                string fileName = $"{Guid.NewGuid()}{ext}";
+                string filePath = Path.Combine(path, fileName);
+
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await img_file.CopyToAsync(stream);
+                }
+
+                user.ProfilePicture = fileName;
+                TempData["Success"] = "Thank you! Your contribution helps the community.";
+                return RedirectToAction("Index", "Profile");
+            }
+            catch (Exception ex)
+            {
+                System.IO.File.AppendAllText("crash.log", $"\n[{DateTime.Now}] UPLOAD FAIL: {ex.Message}\n");
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> SaveProfile(ProfileViewModel model)
         {
             var userId = _userManager.GetUserId(User);
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
             if (user == null) return NotFound();
 
-            user.DisplayName = model.DisplayName ?? user.DisplayName;
-            user.ExperienceLevel = model.ExperienceLevel ?? user.ExperienceLevel;
-
-            var result = await _userManager.UpdateAsync(user);
-
-            if (result.Succeeded)
+            try
             {
-                // Update Skills - Efficiently
-                var currentSkills = await _context.UserSkills.Where(us => us.UserId == user.Id).ToListAsync();
-                _context.UserSkills.RemoveRange(currentSkills);
+                user.DisplayName = model.DisplayName;
+                user.JobTitle = model.JobTitle ?? user.JobTitle;
 
-                if (model.UserSkillIds != null && model.UserSkillIds.Any())
+                var result = await _userManager.UpdateAsync(user);
+                if (result.Succeeded)
                 {
-                    foreach (var skillId in model.UserSkillIds)
-                    {
-                        _context.UserSkills.Add(new UserSkill { UserId = user.Id, SkillId = skillId });
-                    }
-                }
+                    var currentSkills = await _context.UserSkills.Where(us => us.UserId == user.Id).ToListAsync();
+                    _context.UserSkills.RemoveRange(currentSkills);
 
-                await _context.SaveChangesAsync();
-                TempData["Success"] = "Profile updated!";
+                    if (model.UserSkillIds != null)
+                    {
+                        foreach (var skillId in model.UserSkillIds)
+                        {
+                            _context.UserSkills.Add(new UserSkill { UserId = user.Id, SkillId = skillId });
+                        }
+                    }
+
+                    await _context.SaveChangesAsync();
+                }
+                return RedirectToAction(nameof(Index));
             }
-            
-            return RedirectToAction(nameof(Index));
+            catch (Exception)
+            {
+                return await RepopulateAndReturn(model, user);
+            }
+        }
+
+        private async Task<IActionResult> RepopulateAndReturn(ProfileViewModel model, ApplicationUser user)
+        {
+            model.AllSkills = await _context.Skills.OrderBy(s => s.Name).ToListAsync();
+            model.UserSkillIds = await _context.UserSkills.Where(us => us.UserId == user.Id).Select(us => us.SkillId).ToListAsync();
+            model.SavedJobs = await _context.SavedJobs.Where(sj => sj.UserId == user.Id).Include(sj => sj.Job).ToListAsync();
+            model.ProfilePicture = user.ProfilePicture;
+            return View("Index", model);
         }
 
         [HttpGet]

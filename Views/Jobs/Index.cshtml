@@ -1,76 +1,129 @@
 @model Jobalatica.Models.ViewModels.JobSearchViewModel
 @{
-    ViewData["Title"] = "Search Jobs";
+    ViewData["Title"] = "Job Marketplace";
 }
 
-<div class="flex flex-col md:flex-row gap-8">
-    <!-- Sidebar Filters -->
-    <aside class="w-full md:w-72 flex-shrink-0">
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 sticky top-4">
-            <h2 class="text-lg font-bold mb-6">Filters</h2>
-            
-            <form hx-get="/Jobs" 
-                  hx-trigger="change, keyup delay:400ms from:input[type='text']" 
-                  hx-target="#job-results" 
-                  hx-push-url="true"
-                  class="space-y-6">
-                
-                <div>
-                    <label class="block text-sm font-semibold mb-2 uppercase tracking-wider text-gray-500">Keywords</label>
-                    <input type="text" name="query" value="@Model.Query" placeholder="Title, skill, or company" 
-                           class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                </div>
+<style>
+    /* PAGE HEADER */
+    .page-header { border-bottom: var(--border); padding: 48px 56px 40px; }
+    .page-label { display: flex; align-items: center; gap: 7px; font-size: 11px; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(26,22,18,0.45); margin-bottom: 16px; }
+    .page-label-dot { width: 10px; height: 10px; background: var(--green); display: inline-block; flex-shrink: 0; }
+    .page-title { font-family: var(--serif); font-size: clamp(40px,5vw,68px); font-weight: 900; line-height: 1.0; letter-spacing: -0.03em; margin-bottom: 12px; }
+    .page-title em { font-style: italic; font-weight: 400; }
+    .page-sub { font-size: 14px; font-weight: 300; color: rgba(26,22,18,0.55); }
 
-                <div>
-                    <label class="block text-sm font-semibold mb-2 uppercase tracking-wider text-gray-500">Location</label>
-                    <select name="location" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        <option value="">All Locations</option>
-                        <option value="Cairo" selected="@(Model.Location == "Cairo")">Cairo</option>
-                        <option value="Alexandria" selected="@(Model.Location == "Alexandria")">Alexandria</option>
-                        <option value="Dubai" selected="@(Model.Location == "Dubai")">Dubai</option>
-                        <option value="Riyadh" selected="@(Model.Location == "Riyadh")">Riyadh</option>
-                        <option value="Remote" selected="@(Model.Location == "Remote")">Remote</option>
-                    </select>
-                </div>
+    /* LAYOUT */
+    .marketplace-layout { display: grid; grid-template-columns: 280px 1fr; border-top: none; min-height: 80vh; }
 
-                <div>
-                    <label class="block text-sm font-semibold mb-2 uppercase tracking-wider text-gray-500">Experience</label>
-                    <div class="space-y-2">
-                        @foreach (var level in new[] { "Entry", "Mid", "Senior", "Lead" })
-                        {
-                            <label class="inline-flex items-center w-full cursor-pointer">
-                                <input type="radio" name="experienceLevel" value="@level" class="sr-only peer" checked="@(Model.ExperienceLevel == level)">
-                                <div class="w-full p-2 text-center text-sm font-medium border border-gray-200 rounded-lg peer-checked:bg-blue-600 peer-checked:text-white dark:border-gray-700 dark:bg-gray-700 dark:text-gray-400">
-                                    @level
-                                </div>
-                            </label>
-                        }
-                        <label class="inline-flex items-center w-full cursor-pointer">
-                            <input type="radio" name="experienceLevel" value="" class="sr-only peer" checked="@(string.IsNullOrEmpty(Model.ExperienceLevel))">
-                            <div class="w-full p-2 text-center text-sm font-medium border border-gray-200 rounded-lg peer-checked:bg-blue-600 peer-checked:text-white dark:border-gray-700 dark:bg-gray-700 dark:text-gray-400">
-                                Any
-                            </div>
-                        </label>
-                    </div>
-                </div>
+    /* SIDEBAR */
+    .sidebar { border-right: var(--border); padding: 36px 32px; background: var(--parchment); }
+    .filter-header { font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(26,22,18,0.5); margin-bottom: 28px; display: flex; align-items: center; gap: 8px; }
+    .filter-section { margin-bottom: 32px; }
+    .filter-label { font-size: 12px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(26,22,18,0.6); margin-bottom: 14px; display: block; }
+    .exp-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+    .exp-pill { padding: 6px 12px; border: var(--border); font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; background: var(--parchment); transition: background 0.12s; }
+    .exp-pill:hover { background: var(--parchment-2); }
+    .exp-pill-active { background: var(--ink) !important; color: var(--parchment) !important; }
+    .salary-row { display: flex; align-items: center; gap: 0; border: var(--border); }
+    .salary-prefix { padding: 10px 10px; border-right: var(--border); font-size: 12px; font-weight: 500; color: rgba(26,22,18,0.5); background: var(--parchment-2); }
+    .salary-input { flex: 1; padding: 10px 12px; font-family: var(--sans); font-size: 13px; background: var(--parchment); border: none; outline: none; color: var(--ink); }
+    .filter-select { padding: 10px 32px 10px 12px; font-family: var(--sans); font-size: 13px; font-weight: 500; background: var(--parchment); border: var(--border); outline: none; color: var(--ink); cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%231A1612'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; width: 100%; }
+    .clear-link { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(26,22,18,0.4); text-decoration: underline; cursor: pointer; display: block; text-align: center; margin-top: 8px; border: none; background: none; width: 100%; }
+    .sidebar-divider { border: none; border-top: 1px solid rgba(26,22,18,0.1); margin: 28px 0; }
+</style>
 
-                <div>
-                    <label class="block text-sm font-semibold mb-2 uppercase tracking-wider text-gray-500">Min Salary (Annual)</label>
-                    <input type="number" name="salaryMin" value="@Model.SalaryMin" placeholder="0" 
-                           class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                </div>
+<!-- PAGE HEADER -->
+<div class="page-header">
+    <div class="page-label">
+        <span class="page-label-dot"></span>
+        Live Market
+    </div>
+    <h1 class="page-title">Job <em>Marketplace</em></h1>
+    <p class="page-sub">Explore verified listings across MENA, Gulf, and global remote roles.</p>
+</div>
 
-                <button type="button" onclick="window.location.href='/Jobs'" class="w-full text-gray-600 hover:text-blue-600 text-sm font-medium pt-2">
-                    Clear All Filters
-                </button>
-            </form>
+<div class="marketplace-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="filter-header">
+            <svg width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="10" fill="#1A1612"/></svg>
+            Filter Results
         </div>
+
+        <form hx-get="/Jobs" 
+              hx-trigger="change, keyup delay:400ms from:input[type='text']" 
+              hx-target="#job-results" 
+              hx-push-url="true">
+            
+            <div class="filter-section">
+                <span class="filter-label">Keywords</span>
+                <input class="filter-input" type="text" name="query" value="@Model.Query" placeholder="Job title or skill…" />
+            </div>
+
+            <div class="filter-section">
+                <span class="filter-label">Location</span>
+                <select class="filter-select" name="location">
+                    <option value="">All Locations</option>
+                    <option value="Cairo" selected="@(Model.Location == "Cairo")">Cairo</option>
+                    <option value="Dubai" selected="@(Model.Location == "Dubai")">Dubai</option>
+                    <option value="Riyadh" selected="@(Model.Location == "Riyadh")">Riyadh</option>
+                    <option value="Remote" selected="@(Model.Location == "Remote")">Remote</option>
+                </select>
+            </div>
+
+            <hr class="sidebar-divider"/>
+
+            <div class="filter-section">
+                <span class="filter-label">Experience Level</span>
+                <div class="exp-pills">
+                    @foreach (var level in new[] { "Entry", "Mid", "Senior", "Lead" })
+                    {
+                        <label class="cursor-pointer">
+                            <input type="radio" name="experienceLevel" value="@level" class="hidden" checked="@(Model.ExperienceLevel == level)" onchange="this.form.dispatchEvent(new Event('change'))">
+                            <div class="exp-pill @(Model.ExperienceLevel == level ? "exp-pill-active" : "")">@level</div>
+                        </label>
+                    }
+                    <label class="cursor-pointer">
+                        <input type="radio" name="experienceLevel" value="" class="hidden" checked="@(string.IsNullOrEmpty(Model.ExperienceLevel))" onchange="this.form.dispatchEvent(new Event('change'))">
+                        <div class="exp-pill @(string.IsNullOrEmpty(Model.ExperienceLevel) ? "exp-pill-active" : "")">Any</div>
+                    </label>
+                </div>
+            </div>
+
+            <hr class="sidebar-divider"/>
+
+            <div class="filter-section">
+                <span class="filter-label">Min. Salary (USD/yr)</span>
+                <div class="salary-row">
+                    <span class="salary-prefix">$</span>
+                    <input class="salary-input" type="number" name="salaryMin" value="@Model.SalaryMin" placeholder="0" min="0" step="1000"/>
+                </div>
+            </div>
+
+            <button type="button" onclick="window.location.href='/Jobs'" class="clear-link">Clear All Filters</button>
+        </form>
     </aside>
 
-    <!-- Main Results Area -->
-    <div class="flex-grow">
-        <div id="job-results" class="min-h-[400px]">
-            @await Html.PartialAsync("_JobResults", Model)
-        </div>
+    <!-- RESULTS -->
+    <div id="job-results" style="display: flex; flex-direction: column;">
+        @await Html.PartialAsync("_JobResults", Model)
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        document.body.addEventListener('htmx:afterOnLoad', function() {
+            // Update active pill classes after HTMX update
+            const form = document.querySelector('form[hx-get]');
+            const radios = form.querySelectorAll('input[type="radio"]');
+            radios.forEach(radio => {
+                const pill = radio.nextElementSibling;
+                if (radio.checked) {
+                    pill.classList.add('exp-pill-active');
+                } else {
+                    pill.classList.remove('exp-pill-active');
+                }
+            });
+        });
+    </script>
+}

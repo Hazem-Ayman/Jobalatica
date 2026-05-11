@@ -5,29 +5,100 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>@ViewData["Title"] — JobPulse</title>
 
-    <!-- Tailwind CSS -->
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=DM+Sans:wght@300;400;500;700&family=Pixelify+Sans:wght@400;700&display=swap" rel="stylesheet"/>
+
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --parchment: #EDE8DF; --parchment-2: #E5DFD4;
+            --ink: #1A1612; --ink-2: #2C2820;
+            --border: 2px solid var(--ink);
+            --shadow: 4px 4px 0 var(--ink); --shadow-sm: 3px 3px 0 var(--ink);
+            --pink: #F2708A; --peach: #F5C4A8; --lavender: #C8C3E8;
+            --green: #4ADE80; --amber: #F59E0B;
+            --serif: 'Playfair Display', Georgia, serif;
+            --sans: 'DM Sans', system-ui, sans-serif;
+            --pixel: 'Pixelify Sans', cursive;
+        }
 
-    <!-- Flowbite component library -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet"/>
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body { 
+            font-family: var(--sans); 
+            background: var(--parchment); 
+            color: var(--ink); 
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
 
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+        /* GRAIN OVERLAY */
+        body::before {
+            content: ''; position: fixed; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 9999; opacity: 0.35;
+        }
+
+        body > *:not(::before) { position: relative; z-index: 1; }
+
+        /* Global Component Styles */
+        .btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 12px 22px;
+            font-family: var(--pixel); font-size: 13px; font-weight: 500;
+            letter-spacing: 0.05em; text-transform: uppercase;
+            border: var(--border);
+            cursor: pointer; text-decoration: none;
+            transition: transform 0.1s, box-shadow 0.1s;
+            box-shadow: var(--shadow);
+            background: var(--parchment); color: var(--ink);
+        }
+        .btn:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+        .btn:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--ink); }
+        .btn-pink { background: var(--pink); }
+        .btn-green { background: var(--green); }
+        .btn-amber { background: var(--amber); }
+
+        .txt-pixel { font-family: var(--pixel); letter-spacing: 0.05em; text-transform: uppercase; }
+
+        /* Form Controls */
+        input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select, textarea {
+            width: 100%; padding: 12px 14px; 
+            font-family: var(--sans); font-size: 13px; 
+            background: var(--parchment-2); border: var(--border); 
+            outline: none; color: var(--ink); transition: background 0.12s;
+        }
+        input:focus, select:focus, textarea:focus { background: white; }
+    </style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white">
-
+<body>
     @await Html.PartialAsync("_Navbar")
 
-    <main class="container mx-auto px-4 py-8 max-w-7xl min-h-screen">
+    <main>
         @RenderBody()
     </main>
 
-    <!-- HTMX -->
+    <!-- FOOTER -->
+    <footer>
+        <div style="background: var(--ink); color: var(--parchment); border-top: var(--border);">
+            <div style="padding: 56px; border-bottom: 2px solid rgba(237,232,223,0.12); display: flex; align-items: flex-end; justify-content: space-between;">
+                <div>
+                    <div style="font-family: var(--serif); font-size: 36px; font-weight: 900; letter-spacing: -0.04em; color: var(--parchment);">JobPulse</div>
+                    <div style="font-size: 13px; font-weight: 300; color: rgba(237,232,223,0.45); margin-top: 8px;">Market intelligence for the modern collective.</div>
+                </div>
+            </div>
+            <div style="padding: 20px 56px; display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: rgba(237,232,223,0.3);">
+                <span>© 2026 JobPulse. All rights reserved.</span>
+                <span>Built for the collective.</span>
+            </div>
+        </div>
+    </footer>
+
     <script src="https://unpkg.com/htmx.org@1.9.12"></script>
-
-    <!-- Flowbite JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

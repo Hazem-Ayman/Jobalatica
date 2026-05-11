@@ -21,5 +21,12 @@ namespace Jobalatica.Models.ViewModels
         [Display(Name = "Confirm password")]
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; } = string.Empty;
+
+        [Required]
+        [Display(Name = "Job Title")]
+        public string JobTitle { get; set; } = string.Empty;
+
+        public List<string> TechInterests { get; set; } = new();
+        public List<Jobalatica.Models.Entities.Skill> AllSkills { get; set; } = new();
     }
 }

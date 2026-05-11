@@ -3,102 +3,131 @@
     ViewData["Title"] = "Contribute Salary Data";
 }
 
-<div class="max-w-3xl mx-auto">
-    <div class="mb-12 text-center">
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-4">Improve Market Transparency</h1>
-        <p class="text-gray-600 dark:text-gray-400">Share your salary anonymously to help other developers know their worth. Your data is aggregated and never shown individually.</p>
+<style>
+    .salary-layout { display: grid; grid-template-columns: 1fr 1fr; min-height: 90vh; border-bottom: var(--border); }
+    .salary-editorial { 
+        border-right: var(--border); 
+        background: url('/Img/salary_photo.png') center/cover no-repeat;
+        padding: 72px 56px; 
+        display: flex; 
+        flex-direction: column; 
+        justify-content: center; 
+        position: relative; 
+        overflow: hidden; 
+    }
+    .salary-editorial::before {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(135deg, rgba(216,206,238,0.45) 0%, rgba(216,206,238,0.1) 100%);
+        z-index: 1;
+    }
+    .salary-editorial > * { position: relative; z-index: 2; }
+
+    .editorial-title { font-family: var(--serif); font-size: clamp(38px,4vw,60px); font-weight: 900; line-height: 1.05; letter-spacing: -0.03em; margin-bottom: 24px; color: var(--ink); }
+    .editorial-body { font-size: 15px; font-weight: 500; line-height: 1.8; color: var(--ink); max-width: 420px; margin-bottom: 40px; }
+    
+    .stats-trio { display: grid; grid-template-columns: repeat(3,1fr); border: var(--border); box-shadow: var(--shadow); background: rgba(246, 241, 230, 0.7); backdrop-filter: blur(4px); }
+    .trio-cell { padding: 20px 16px; border-right: var(--border); text-align: center; }
+    .trio-cell:last-child { border-right: none; }
+    .trio-num { font-family: var(--serif); font-size: 28px; font-weight: 900; letter-spacing: -0.04em; display: block; }
+    .trio-label { font-size: 9px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(26,22,18,0.4); display: block; margin-top: 4px; }
+
+    .salary-form-side { padding: 56px 64px; display: flex; flex-direction: column; justify-content: center; }
+    .form-card { border: var(--border); box-shadow: var(--shadow); background: var(--parchment); }
+    .form-card-header { border-bottom: var(--border); padding: 20px 28px; background: var(--parchment-2); }
+    .form-card-title { font-family: var(--serif); font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+    .form-card-body { padding: 28px; display: flex; flex-direction: column; gap: 20px; }
+
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .field { display: flex; flex-direction: column; gap: 7px; }
+    .field label { font-size: 9px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(26,22,18,0.45); }
+    
+    .salary-input-row { display: flex; border: var(--border); }
+    .salary-prefix { padding: 11px 12px; border-right: var(--border); font-size: 12px; font-weight: 600; color: rgba(26,22,18,0.5); background: var(--parchment-2); display: flex; align-items: center; }
+    .salary-num { flex: 1; padding: 11px 13px; font-family: var(--sans); font-size: 13px; background: var(--parchment-2); border: none; outline: none; color: var(--ink); }
+    .salary-cur { border-left: var(--border); }
+    .salary-cur select { padding: 0 32px 0 12px; height: 100%; border: none; background: var(--parchment-2); }
+
+    .slider-section { border: var(--border); padding: 20px; background: var(--parchment-2); }
+    input[type="range"] { width: 100%; -webkit-appearance: none; height: 4px; background: var(--ink); outline: none; margin-bottom: 8px; }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: var(--ink); border: 2px solid var(--parchment); box-shadow: 0 0 0 2px var(--ink); }
+</style>
+
+<div class="salary-layout">
+    <div class="salary-editorial">
+        <div class="win-label">
+            <div class="win-dot"></div>
+            Collective Intelligence
+        </div>
+        <h1 class="editorial-title">Help <em>build</em><br/>the market.</h1>
+        <p class="editorial-body">
+            Every data point you share is anonymized and aggregated. Your contribution shapes the negotiating power of the entire collective.
+        </p>
+        <div class="stats-trio">
+            <div class="trio-cell"><span class="trio-num">1.2K</span><span class="trio-label">Data Points</span></div>
+            <div class="trio-cell"><span class="trio-num">100%</span><span class="trio-label">Anonymous</span></div>
+            <div class="trio-cell"><span class="trio-num">14</span><span class="trio-label">Countries</span></div>
+        </div>
     </div>
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="p-4 mb-8 text-sm text-green-800 rounded-2xl bg-green-50 dark:bg-gray-800 dark:text-green-400 font-bold border border-green-100 dark:border-green-900 flex items-center">
-            <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
-            @TempData["Success"]
-        </div>
-    }
-
-    <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-xl border border-gray-100 dark:border-gray-700 p-8 md:p-12">
-        <form asp-action="Submit" method="post" class="space-y-8">
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div>
-                    <label asp-for="JobTitle" class="block mb-2 text-sm font-bold text-gray-500 uppercase tracking-wider">Exact Job Title</label>
-                    <input asp-for="JobTitle" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 p-4 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="e.g. Senior Full Stack Engineer">
-                    <span asp-validation-for="JobTitle" class="text-red-500 text-xs mt-1"></span>
-                </div>
-
-                <div>
-                    <label asp-for="Location" class="block mb-2 text-sm font-bold text-gray-500 uppercase tracking-wider">Location (City)</label>
-                    <input asp-for="Location" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 p-4 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="e.g. Cairo or Remote">
-                    <span asp-validation-for="Location" class="text-red-500 text-xs mt-1"></span>
-                </div>
+    <div class="salary-form-side">
+        <div class="form-card">
+            <div class="form-card-header">
+                <div class="form-card-title">Submit Salary Data</div>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="md:col-span-2">
-                    <label asp-for="Salary" class="block mb-2 text-sm font-bold text-gray-500 uppercase tracking-wider">Annual Gross Salary</label>
-                    <div class="relative">
-                        <div class="absolute inset-y-0 left-0 flex items-center pl-4 pointer-events-none text-gray-500 font-bold">$</div>
-                        <input asp-for="Salary" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 p-4 pl-10 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="75,000">
+            <div class="form-card-body">
+                <form asp-action="Submit" method="post" style="display: flex; flex-direction: column; gap: 20px;">
+                    <div class="field-row">
+                        <div class="field">
+                            <label asp-for="JobTitle">Exact Job Title</label>
+                            <input asp-for="JobTitle" placeholder="e.g. Senior Backend Engineer" />
+                        </div>
+                        <div class="field">
+                            <label asp-for="Location">Location</label>
+                            <input asp-for="Location" placeholder="e.g. Cairo, Egypt" />
+                        </div>
                     </div>
-                    <span asp-validation-for="Salary" class="text-red-500 text-xs mt-1"></span>
-                </div>
 
-                <div>
-                    <label asp-for="Currency" class="block mb-2 text-sm font-bold text-gray-500 uppercase tracking-wider">Currency</label>
-                    <select asp-for="Currency" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 p-4 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                        <option value="USD">USD</option>
-                        <option value="EGP">EGP</option>
-                        <option value="SAR">SAR</option>
-                        <option value="AED">AED</option>
-                        <option value="EUR">EUR</option>
-                    </select>
-                </div>
-            </div>
+                    <div class="field">
+                        <label asp-for="CompanyName">Company Name</label>
+                        <input asp-for="CompanyName" placeholder="e.g. Google, Stripe, or 'Stealth Startup'" />
+                    </div>
 
-            <div>
-                <div class="flex justify-between items-center mb-4">
-                    <label asp-for="YearsExperience" class="text-sm font-bold text-gray-500 uppercase tracking-wider">Years of Experience</label>
-                    <span id="exp-value" class="bg-blue-100 text-blue-800 text-sm font-extrabold px-3 py-1 rounded-lg">0 years</span>
-                </div>
-                <input asp-for="YearsExperience" type="range" min="0" max="40" value="0" step="1" id="exp-slider" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
-                <div class="flex justify-between text-xs text-gray-400 mt-2">
-                    <span>Entry</span>
-                    <span>20 years</span>
-                    <span>40+ years</span>
-                </div>
-            </div>
+                    <div class="field">
+                        <label asp-for="Salary">Annual Gross Salary</label>
+                        <div class="salary-input-row">
+                            <span class="salary-prefix">$</span>
+                            <input class="salary-num" asp-for="Salary" type="number" placeholder="60,000"/>
+                            <div class="salary-cur">
+                                <select asp-for="Currency">
+                                    <option value="USD">USD</option>
+                                    <option value="EGP">EGP</option>
+                                    <option value="SAR">SAR</option>
+                                    <option value="AED">AED</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
 
-            <div>
-                <label asp-for="SkillsList" class="block mb-2 text-sm font-bold text-gray-500 uppercase tracking-wider">Primary Skills (Comma separated)</label>
-                <textarea asp-for="SkillsList" rows="3" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 p-4 dark:bg-gray-700 dark:border-gray-600 dark:text-white" placeholder="e.g. C#, .NET Core, SQL Server, React"></textarea>
-                <p class="mt-2 text-xs text-gray-400">Mentioning your skills helps us provide more accurate role analysis.</p>
-            </div>
+                    <div class="slider-section">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+                            <span style="font-size: 9px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(26,22,18,0.45);">Years of Experience</span>
+                            <span id="sliderVal" style="font-family: var(--serif); font-size: 18px; font-weight: 900;">@Model.YearsExperience yrs</span>
+                        </div>
+                        <input type="range" asp-for="YearsExperience" min="0" max="20" step="1" id="expSlider" oninput="document.getElementById('sliderVal').textContent=this.value+' yrs'"/>
+                    </div>
 
-            <div class="pt-8 border-t border-gray-100 dark:border-gray-700 flex flex-col md:flex-row items-center justify-between gap-6">
-                <p class="text-xs text-gray-500 max-w-sm italic">
-                    <svg class="w-4 h-4 inline mr-1 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path></svg>
-                    Your privacy is protected. Data is aggregated and used only for statistical purposes.
-                </p>
-                <button type="submit" class="w-full md:w-auto text-white bg-blue-700 hover:bg-blue-800 font-bold rounded-xl text-sm px-12 py-4 text-center transition-all">
-                    Submit Market Data
-                </button>
+                    <div class="field">
+                        <label asp-for="SkillsList">Primary Skills (comma-separated)</label>
+                        <textarea asp-for="SkillsList" rows="2" placeholder="React, TypeScript, Node.js, AWS…"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-dark" style="width: 100%; justify-content: center; padding: 16px;">
+                        Submit Market Data
+                    </button>
+                </form>
             </div>
-        </form>
+        </div>
     </div>
 </div>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-    <script>
-        const slider = document.getElementById('exp-slider');
-        const display = document.getElementById('exp-value');
-
-        slider.addEventListener('input', (e) => {
-            const val = e.target.value;
-            display.innerText = val + (val == 1 ? ' year' : ' years');
-        });
-
-        // Initialize display
-        display.innerText = slider.value + (slider.value == 1 ? ' year' : ' years');
-    </script>
-}

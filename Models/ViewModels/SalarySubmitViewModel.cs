@@ -8,6 +8,9 @@ namespace Jobalatica.Models.ViewModels
         public string JobTitle { get; set; } = string.Empty;
 
         [Required]
+        public string CompanyName { get; set; } = string.Empty;
+
+        [Required]
         public string Location { get; set; } = string.Empty;
 
         [Range(0, 999999)] // Increased range slightly to be safe, spec said 99999

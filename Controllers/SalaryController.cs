@@ -3,6 +3,7 @@ using Jobalatica.Models.ViewModels;
 using Jobalatica.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Jobalatica.Controllers
 {
@@ -18,9 +19,35 @@ namespace Jobalatica.Controllers
         }
 
         [HttpGet]
-        public IActionResult Submit()
+        public async Task<IActionResult> Submit()
         {
-            return View(new SalarySubmitViewModel());
+            var model = new SalarySubmitViewModel();
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                var userId = _userManager.GetUserId(User);
+                var user = await _userManager.FindByIdAsync(userId!);
+                if (user != null)
+                {
+                    model.JobTitle = user.JobTitle;
+                    model.CompanyName = user.CompanyName;
+                    
+                    // Fetch skills from the UserSkill matrix
+                    var userSkills = await _userManager.Users
+                        .Where(u => u.Id == userId)
+                        .SelectMany(u => u.UserSkills.Select(us => us.Skill.Name))
+                        .ToListAsync();
+
+                    if (userSkills.Any())
+                    {
+                        model.SkillsList = string.Join(", ", userSkills);
+                    }
+                    else
+                    {
+                        model.SkillsList = user.TechInterests;
+                    }
+                }
+            }
+            return View(model);
         }
 
         [HttpPost]
@@ -31,6 +58,7 @@ namespace Jobalatica.Controllers
                 var report = new SalaryReport
                 {
                     JobTitle = model.JobTitle,
+                    CompanyName = model.CompanyName,
                     Location = model.Location,
                     Salary = model.Salary,
                     Currency = model.Currency,
@@ -42,8 +70,21 @@ namespace Jobalatica.Controllers
 
                 await _salaryService.SubmitReportAsync(report);
 
+                // Sync profile with latest job info
+                if (User.Identity?.IsAuthenticated == true)
+                {
+                    var userId = _userManager.GetUserId(User);
+                    var user = await _userManager.FindByIdAsync(userId!);
+                    if (user != null)
+                    {
+                        user.JobTitle = model.JobTitle;
+                        user.CompanyName = model.CompanyName;
+                        await _userManager.UpdateAsync(user);
+                    }
+                }
+
                 TempData["Success"] = "Thank you! Your contribution helps the community.";
-                return RedirectToAction(nameof(Submit));
+                return RedirectToAction("Index", "Profile");
             }
 
             return View(model);

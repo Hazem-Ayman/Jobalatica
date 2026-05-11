@@ -1,44 +1,119 @@
 @model Jobalatica.Models.ViewModels.LoginViewModel
 @{
-    ViewData["Title"] = "Sign in to your account";
+    ViewData["Title"] = "Sign In";
 }
 
-<div class="flex items-center justify-center min-h-[80vh]">
-    <div class="w-full max-w-md p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700">
-        <div class="text-center mb-8">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Welcome Back</h1>
-            <p class="text-gray-500 dark:text-gray-400 mt-2">Sign in to access your market data.</p>
-        </div>
+<style>
+    .auth-container { 
+        min-height: 80vh; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        padding: 40px 20px;
+    }
+    .auth-card { 
+        background: var(--parchment); 
+        border: var(--border); 
+        box-shadow: var(--shadow); 
+        width: 100%; 
+        max-width: 440px; 
+        padding: 48px; 
+    }
+    .auth-title { 
+        font-family: var(--serif); 
+        font-size: 42px; 
+        font-weight: 900; 
+        letter-spacing: -0.03em; 
+        margin-bottom: 8px; 
+        color: var(--ink); 
+        text-align: center;
+    }
+    .auth-sub { 
+        font-size: 14px; 
+        color: rgba(26,22,18,0.5); 
+        text-align: center; 
+        margin-bottom: 40px; 
+    }
+    .form-group { margin-bottom: 24px; }
+    .form-label { 
+        display: block; 
+        font-size: 11px; 
+        font-weight: 700; 
+        letter-spacing: 0.12em; 
+        text-transform: uppercase; 
+        color: var(--ink); 
+        margin-bottom: 8px; 
+    }
+    .form-input { 
+        width: 100%; 
+        padding: 12px 16px; 
+        font-family: var(--sans); 
+        font-size: 14px; 
+        background: var(--parchment); 
+        border: var(--border); 
+        outline: none; 
+        color: var(--ink); 
+    }
+    .form-input:focus { background: white; }
+    
+    .btn-auth { 
+        width: 100%; 
+        padding: 14px; 
+        background: var(--pink); 
+        border: var(--border); 
+        font-family: var(--sans); 
+        font-size: 13px; 
+        font-weight: 700; 
+        letter-spacing: 0.1em; 
+        text-transform: uppercase; 
+        cursor: pointer; 
+        box-shadow: var(--shadow-sm); 
+        transition: all 0.1s; 
+        margin-top: 12px;
+    }
+    .btn-auth:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
 
-        <form asp-action="Login" method="post" class="space-y-6">
-            <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm font-medium"></div>
+    .auth-link { font-size: 13px; color: rgba(26,22,18,0.5); text-align: center; margin-top: 24px; }
+    .auth-link a { color: var(--ink); font-weight: 700; text-decoration: underline; }
+    
+    .checkbox-group { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }
+    .checkbox-input { width: 18px; height: 18px; border: var(--border); appearance: none; background: var(--parchment); cursor: pointer; position: relative; }
+    .checkbox-input:checked { background: var(--pink); }
+    .checkbox-input:checked::after { content: ''; position: absolute; top: 2px; left: 6px; width: 4px; height: 8px; border: solid var(--ink); border-width: 0 2px 2px 0; transform: rotate(45deg); }
+</style>
 
-            <div>
-                <label asp-for="Email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email Address</label>
-                <input asp-for="Email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="name@company.com">
-                <span asp-validation-for="Email" class="text-red-500 text-xs mt-1"></span>
+<div class="auth-container">
+    <div class="auth-card">
+        <h1 class="auth-title">Welcome <em>Back</em></h1>
+        <p class="auth-sub">Enter the matrix to access market data.</p>
+
+        <form asp-action="Login" method="post">
+            <div asp-validation-summary="ModelOnly" style="color: var(--pink); font-size: 12px; margin-bottom: 20px; font-weight: 700;"></div>
+
+            <div class="form-group">
+                <label asp-for="Email" class="form-label">Email Address</label>
+                <input asp-for="Email" class="form-input" placeholder="name@company.com">
+                <span asp-validation-for="Email" style="color: var(--pink); font-size: 11px;"></span>
             </div>
 
-            <div>
-                <div class="flex justify-between mb-2">
-                    <label asp-for="Password" class="text-sm font-medium text-gray-900 dark:text-white">Password</label>
-                    <a href="#" class="text-sm text-blue-600 hover:underline">Forgot password?</a>
+            <div class="form-group">
+                <div style="display: flex; justify-content: space-between;">
+                    <label asp-for="Password" class="form-label">Password</label>
+                    <a href="#" style="font-size: 11px; color: rgba(26,22,18,0.4); text-transform: uppercase; font-weight: 700; letter-spacing: 0.05em;">Forgot?</a>
                 </div>
-                <input asp-for="Password" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
-                <span asp-validation-for="Password" class="text-red-500 text-xs mt-1"></span>
+                <input asp-for="Password" class="form-input" type="password">
+                <span asp-validation-for="Password" style="color: var(--pink); font-size: 11px;"></span>
             </div>
 
-            <div class="flex items-center">
-                <input asp-for="RememberMe" type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                <label asp-for="RememberMe" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300">Remember me</label>
+            <div class="checkbox-group">
+                <input asp-for="RememberMe" type="checkbox" class="checkbox-input">
+                <label asp-for="RememberMe" style="font-size: 13px; font-weight: 500; color: rgba(26,22,18,0.6); cursor: pointer;">Remember this session</label>
             </div>
 
-            <button type="submit" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg text-sm px-5 py-3 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                Sign In
-            </button>
+            <button type="submit" class="btn-auth">Sign In →</button>
 
-            <p class="text-sm font-light text-gray-500 dark:text-gray-400 text-center">
-                New here? <a asp-action="Register" class="font-medium text-blue-600 hover:underline dark:text-blue-500">Create a free account</a>
+            <p class="auth-link">
+                New here? <a asp-action="Register">Create an account</a>
             </p>
         </form>
     </div>

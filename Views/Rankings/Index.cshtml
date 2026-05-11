@@ -4,88 +4,134 @@
     ViewData["Title"] = "Market Rankings";
 }
 
-<div class="mb-12">
-    <h1 class="text-3xl font-bold mb-4">Market Demand Rankings</h1>
-    <p class="text-gray-600 dark:text-gray-400">Analysis based on the last 30 days of market activity.</p>
-</div>
+<style>
+    /* PAGE HEADER */
+    .page-header { border-bottom: var(--border); display: flex; flex-direction: column; align-items: center; text-align: center; padding: 96px 56px; }
+    .page-label { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(26,22,18,0.45); margin-bottom: 24px; }
+    .page-label-dot { width: 12px; height: 12px; background: var(--amber); display: inline-block; }
+    .page-title { font-family: var(--serif); font-size: clamp(60px, 8vw, 110px); font-weight: 900; line-height: 0.95; letter-spacing: -0.04em; margin-bottom: 24px; }
+    .page-title em { font-style: italic; font-weight: 400; }
+    .page-sub { font-size: 1.1rem; font-weight: 300; color: rgba(26,22,18,0.55); max-width: 600px; margin-bottom: 48px; }
+    .page-header-right { padding: 0; display: flex; align-items: center; justify-content: center; width: 100%; }
 
-<!-- Top Roles Chart Section -->
-<section class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-8 mb-12">
-    <div class="flex justify-between items-center mb-8">
-        <h2 class="text-xl font-bold">Top 15 Most Demanded Roles</h2>
-        <div class="flex bg-gray-100 dark:bg-gray-700 p-1 rounded-lg">
-            <button class="px-4 py-1.5 text-xs font-bold rounded-md bg-white dark:bg-gray-600 shadow-sm">Monthly</button>
-            <button class="px-4 py-1.5 text-xs font-bold text-gray-500">Quarterly</button>
+    /* ROLES ANALYSIS */
+    .roles-section { border-bottom: var(--border); display: flex; flex-direction: column; }
+    .chart-panel { border-right: none; border-bottom: var(--border); padding: 96px 56px; display: flex; flex-direction: column; align-items: center; }
+    .chart-label { font-size: 12px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(26,22,18,0.4); margin-bottom: 32px; display: flex; align-items: center; gap: 10px; width: 100%; max-width: 1000px; }
+    
+    /* TABLE */
+    .roles-table { width: 100%; border-collapse: collapse; max-width: 1000px; margin: 0 auto; }
+    .roles-table thead tr { border-bottom: var(--border); background: var(--parchment-2); }
+    .roles-table th { padding: 24px 32px; font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(26,22,18,0.4); text-align: left; }
+    .roles-table td { padding: 32px 32px; font-size: 16px; border-bottom: 1px solid rgba(26,22,18,0.08); }
+    .roles-table td:first-child { font-family: var(--serif); font-size: 32px; font-weight: 900; color: rgba(26,22,18,0.15); text-align: center; width: 80px; }
+    .roles-table tr:hover td { background: var(--parchment-2); }
+
+    /* SKILLS */
+    .skills-intro { border-bottom: var(--border); display: grid; grid-template-columns: 300px 1fr; }
+    .skills-intro-left { border-right: var(--border); padding: 48px 40px; background: var(--amber); }
+    .skills-grid { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: var(--border); }
+    .skill-card { border-right: var(--border); border-bottom: var(--border); padding: 28px 28px; }
+    .skill-card:nth-child(4n) { border-right: none; }
+    .skill-card:nth-last-child(-n+4) { border-bottom: none; }
+    .skill-category { font-size: 9px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(26,22,18,0.35); margin-bottom: 8px; }
+    .skill-name { font-family: var(--serif); font-size: 22px; font-weight: 900; letter-spacing: -0.02em; margin-bottom: 8px; color: var(--ink); }
+    .skill-count { font-size: 11px; color: rgba(26,22,18,0.5); margin-bottom: 12px; }
+</style>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+    <div class="page-label"><span class="page-label-dot"></span>Market Intelligence</div>
+    <h1 class="page-title"><em>Role</em> Rankings</h1>
+    <p class="page-sub">Analysis based on the last 30 days of market activity across 12,400+ verified postings.</p>
+    <div class="page-header-right">
+        <div style="display: flex; border: var(--border); box-shadow: var(--shadow-sm);">
+            <button class="btn" style="border: none; box-shadow: none; background: var(--ink); color: var(--parchment); border-radius: 0;">Monthly Analysis</button>
         </div>
     </div>
-    
-    <div class="h-[400px]">
-        <canvas id="topRolesChart"></canvas>
+</div>
+
+<div class="roles-section">
+    <!-- BAR CHART -->
+    <div class="chart-panel">
+        <div class="chart-label">
+            <svg width="8" height="8" viewBox="0 0 8 8"><rect width="8" height="8" fill="#1A1612"/></svg>
+            Postings Volume — Top Roles
+        </div>
+        <div style="height: 600px; width: 100%; max-width: 1000px;">
+            <canvas id="topRolesChart"></canvas>
+        </div>
     </div>
-    
-    <div class="mt-8 overflow-x-auto">
-        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+
+    <!-- ROLES TABLE -->
+    <div style="overflow: hidden;">
+        <table class="roles-table">
+            <thead>
                 <tr>
-                    <th class="px-6 py-3">Rank</th>
-                    <th class="px-6 py-3">Role Title</th>
-                    <th class="px-6 py-3 text-center">Open Postings</th>
-                    <th class="px-6 py-3 text-center">Trend</th>
-                    <th class="px-6 py-3 text-right">Action</th>
+                    <th>#</th>
+                    <th>Role Title</th>
+                    <th>Postings</th>
+                    <th>Action</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="rolesTableBody">
                 @for (int i = 0; i < Model.TopRoles.Count; i++)
                 {
                     var role = Model.TopRoles[i];
-                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
-                        <td class="px-6 py-4 font-bold text-gray-900 dark:text-white">@(i + 1)</td>
-                        <td class="px-6 py-4 font-semibold text-gray-900 dark:text-white">@role.Title</td>
-                        <td class="px-6 py-4 text-center">@role.Count</td>
-                        <td class="px-6 py-4 text-center">
-                            <span class="text-green-500 flex justify-center items-center">
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
-                                @(12 - i)%
-                            </span>
-                        </td>
-                        <td class="px-6 py-4 text-right">
-                            <a href="/Rankings/RoleDetail?title=@role.Title" class="text-blue-600 hover:underline font-bold">Details</a>
-                        </td>
+                    <tr class="role-row @(i >= 7 ? "hidden-role" : "")" style="@(i >= 7 ? "display: none;" : "")">
+                        <td>@(i + 1)</td>
+                        <td><span style="font-weight: 600; color: var(--ink);">@role.Title</span></td>
+                        <td><span style="font-family: var(--serif); font-size: 16px; font-weight: 700;">@role.Count</span></td>
+                        <td><a asp-controller="Rankings" asp-action="RoleDetail" asp-route-title="@role.Title" style="font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--ink);">Details →</a></td>
                     </tr>
                 }
             </tbody>
         </table>
-    </div>
-</section>
-
-<!-- Top Skills Section -->
-<section>
-    <div class="flex justify-between items-center mb-8">
-        <h2 class="text-2xl font-bold">Top Industry Skills</h2>
-        <span class="text-sm text-gray-500">Updated every 24 hours</span>
-    </div>
-    
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-        @foreach (var skill in Model.TopSkills)
+        @if (Model.TopRoles.Count > 7)
         {
-            <a href="/Rankings/RoleDetail?title=@skill.Name" class="bg-white dark:bg-gray-800 p-6 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all hover:-translate-y-1 group">
-                <span class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300 mb-4 inline-block">@skill.Category</span>
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-blue-600">@skill.Name</h3>
-                <div class="flex items-end justify-between">
-                    <div>
-                        <span class="block text-2xl font-mono font-bold text-gray-900 dark:text-white">@skill.TotalJobMentions</span>
-                        <span class="text-[10px] text-gray-400 uppercase font-bold tracking-tighter">Postings</span>
-                    </div>
-                    <div class="text-right">
-                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
-                            High
-                        </span>
-                    </div>
-                </div>
-            </a>
+            <div id="showMoreContainer" style="padding: 32px; border-top: var(--border); text-align: center; background: var(--parchment-2);">
+                <button class="btn" onclick="showAllRoles()" style="background: var(--ink); color: var(--parchment); padding: 12px 32px;">Read More Roles ↓</button>
+            </div>
         }
     </div>
-</section>
+</div>
+
+<script>
+    function showAllRoles() {
+        document.querySelectorAll('.hidden-role').forEach(row => {
+            row.style.display = 'table-row';
+        });
+        document.getElementById('showMoreContainer').style.display = 'none';
+    }
+</script>
+
+<!-- INDUSTRY SKILLS SECTION -->
+<div class="skills-intro">
+    <div class="skills-intro-left">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:rgba(26,22,18,0.5);margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+            <svg width="10" height="10" viewBox="0 0 10 10"><rect width="10" height="10" fill="#1A1612"/></svg>
+            Skill Matrices
+        </div>
+        <h2 style="font-family:var(--serif);font-size:36px;font-weight:900;line-height:1.05;letter-spacing:-0.03em;margin-bottom:14px;">Industry<br/>Skills Index</h2>
+        <p style="font-size:13px;font-weight:300;line-height:1.7;color:rgba(26,22,18,0.65);">Demand frequency across all active listings, updated weekly.</p>
+    </div>
+    <div style="padding: 48px 40px; display: flex; align-items: center;">
+        <p style="font-size:15px;font-weight:300;line-height:1.8;color:rgba(26,22,18,0.55);max-width:480px;">
+            We track every skill by demand frequency, salary delta, and market velocity — so you know exactly where to invest your learning time.
+        </p>
+    </div>
+</div>
+<div class="skills-grid">
+    @foreach (var skill in Model.TopSkills)
+    {
+        <div class="skill-card">
+            <div class="skill-category">@skill.Category</div>
+            <div class="skill-name">@skill.Name</div>
+            <div class="skill-count">@skill.TotalJobMentions postings</div>
+            <span style="display: inline-block; padding: 3px 10px; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; border: var(--border); background: var(--green);">High Demand</span>
+        </div>
+    }
+</div>
 
 @section Scripts {
     <script>
@@ -97,28 +143,21 @@
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Job Postings',
                     data: data,
-                    backgroundColor: 'rgba(59, 130, 246, 0.7)',
-                    borderColor: 'rgb(59, 130, 246)',
-                    borderWidth: 1,
-                    borderRadius: 6
+                    backgroundColor: '#1A1612',
+                    borderWidth: 0,
                 }]
             },
             options: {
                 indexAxis: 'y',
                 responsive: true,
                 maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false }
-                },
+                plugins: { legend: { display: false } },
                 scales: {
-                    x: {
-                        grid: { display: false },
-                        beginAtZero: true
-                    },
+                    x: { display: false, beginAtZero: true },
                     y: {
-                        grid: { display: false }
+                        grid: { display: false },
+                        ticks: { color: 'rgba(26,22,18,0.5)', font: { family: 'DM Sans', size: 12, weight: 'bold' } }
                     }
                 }
             }

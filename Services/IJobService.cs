@@ -19,5 +19,6 @@ namespace Jobalatica.Services
         Task<bool> IsJobSavedAsync(string userId, long jobId);
         Task SaveJobAsync(string userId, long jobId);
         Task UnsaveJobAsync(string userId, long jobId);
+        Task<List<long>> GetSavedJobIdsAsync(string userId);
     }
 }

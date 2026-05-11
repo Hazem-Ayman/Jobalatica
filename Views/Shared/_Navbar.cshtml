@@ -1,63 +1,120 @@
 @using Microsoft.AspNetCore.Identity
 @using Jobalatica.Models.Entities
 @inject UserManager<ApplicationUser> UserManager
-<nav class="bg-white border-b border-gray-200 px-4 py-2.5 dark:bg-gray-800 dark:border-gray-700">
-    <div class="flex flex-wrap justify-between items-center mx-auto max-w-7xl">
-        <a asp-controller="Home" asp-action="Index" class="flex items-center">
-            <span class="self-center text-2xl font-bold whitespace-nowrap dark:text-white text-blue-600">JobPulse</span>
-        </a>
-        <div class="flex items-center lg:order-2">
-            @if (User.Identity?.IsAuthenticated == true)
+
+<style>
+    nav { border-bottom: var(--border); background: var(--parchment); display: flex; align-items: stretch; position: sticky; top: 0; z-index: 100; min-height: 80px; }
+    .nav-logo { border-right: var(--border); padding: 0 32px; display: flex; align-items: center; gap: 12px; font-family: var(--serif); font-size: 26px; font-weight: 900; letter-spacing: -0.03em; text-decoration: none; color: var(--ink); }
+    .nav-logo-icon { width: 32px; height: 32px; background: var(--ink); display: grid; place-items: center; }
+    .nav-logo-icon span { width: 14px; height: 14px; background: var(--parchment); display: block; }
+    .nav-links { display: flex; align-items: stretch; list-style: none; }
+    .nav-links li { border-right: var(--border); }
+    .nav-links a { display: flex; align-items: center; gap: 9px; padding: 0 28px; height: 100%; font-family: var(--pixel); font-size: 14px; font-weight: 500; text-decoration: none; color: var(--ink); white-space: nowrap; transition: background 0.15s; text-transform: uppercase; letter-spacing: 0.05em; }
+    .nav-links a:hover, .nav-links a.active { background: var(--parchment-2); }
+    .nav-dot { width: 10px; height: 10px; display: inline-block; flex-shrink: 0; }
+    .nav-right { margin-left: auto; display: flex; align-items: stretch; border-left: var(--border); }
+    .nav-right a, .nav-right button { display: flex; align-items: center; padding: 0 32px; font-family: var(--pixel); font-size: 14px; font-weight: 500; text-decoration: none; color: var(--ink); border-right: var(--border); background: none; border: none; cursor: pointer; transition: background 0.15s; text-transform: uppercase; letter-spacing: 0.05em; }
+    .nav-right a:hover, .nav-right button:hover { background: var(--parchment-2); }
+    .btn-primary-nav { background: var(--pink) !important; font-weight: 600 !important; border: none !important; }
+    .user-pill { display: flex; align-items: center; gap: 12px; border-right: var(--border); padding: 0 28px; }
+    .user-circle { width: 40px; height: 40px; background: var(--ink); border-radius: 50%; display: grid; place-items: center; font-family: var(--serif); font-size: 16px; font-weight: 700; color: var(--parchment); overflow: hidden; }
+    .user-circle img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Salary Prompt Modal */
+    .salary-modal-overlay { 
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+        background: rgba(26,22,18,0.7); backdrop-filter: blur(4px); 
+        z-index: 1000; display: none; align-items: center; justify-content: center; 
+        padding: 20px;
+    }
+    .salary-modal { 
+        background: var(--parchment); border: var(--border); 
+        box-shadow: var(--shadow); width: 100%; max-width: 500px; 
+        padding: 40px; position: relative;
+    }
+    .salary-modal-title { font-family: var(--serif); font-size: 32px; font-weight: 900; margin-bottom: 20px; }
+    .salary-modal-list { margin-bottom: 32px; list-style: none; }
+    .salary-modal-list li { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 16px; font-size: 14px; font-weight: 500; }
+    .salary-modal-icon { width: 20px; height: 20px; background: var(--pink); border: 1px solid var(--ink); flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 900; }
+</style>
+
+<nav>
+    <a class="nav-logo" asp-controller="Home" asp-action="Index">
+        <div class="nav-logo-icon"><span></span></div>
+        JobPulse
+    </a>
+    <ul class="nav-links">
+        <li>
+            <a asp-controller="Home" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">
+                <svg class="nav-dot" viewBox="0 0 8 8"><rect width="8" height="8" fill="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "#4ADE80" : "#1A1612")"/></svg>
+                Home
+            </a>
+        </li>
+        <li>
+            <a asp-controller="Jobs" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Jobs" ? "active" : "")">
+                <svg class="nav-dot" viewBox="0 0 8 8"><rect width="8" height="8" fill="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Jobs" ? "#4ADE80" : "#1A1612")"/></svg>
+                Jobs
+            </a>
+        </li>
+        <li>
+            <a asp-controller="Rankings" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Rankings" ? "active" : "")">
+                <svg class="nav-dot" viewBox="0 0 8 8"><rect width="8" height="8" fill="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Rankings" ? "#4ADE80" : "#1A1612")"/></svg>
+                Rankings
+            </a>
+        </li>
+    </ul>
+    <div class="nav-right">
+        @if (User.Identity?.IsAuthenticated == true)
+        {
+            var user = await UserManager.GetUserAsync(User);
+            
+            if (user != null && !user.HasSeenSalaryPrompt)
             {
-                <button type="button" class="flex mx-3 text-sm bg-gray-800 rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown">
-                    <span class="sr-only">Open user menu</span>
-                    <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">
-                        @(string.IsNullOrEmpty(User.Identity?.Name) ? "?" : User.Identity.Name.Substring(0, 1).ToUpper())
-                    </div>
-                </button>
-                <!-- Dropdown menu -->
-                <div class="hidden z-50 my-4 text-base list-none bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600" id="user-dropdown">
-                    <div class="py-3 px-4">
-                        <span class="block text-sm text-gray-900 dark:text-white">@User.Identity.Name</span>
-                    </div>
-                    <ul class="py-1" aria-labelledby="user-menu-button">
-                        <li>
-                            <a asp-controller="Profile" asp-action="Index" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Profile</a>
-                        </li>
-                        <li>
-                            <a asp-controller="Profile" asp-action="SavedJobs" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Saved Jobs</a>
-                        </li>
-                    </ul>
-                    <div class="py-1">
-                        <form asp-controller="Account" asp-action="Logout" method="post">
-                            <button type="submit" class="block w-full text-left py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Sign out</button>
-                        </form>
+                <div class="salary-modal-overlay" id="salaryPromptOverlay" style="display: flex;">
+                    <div class="salary-modal">
+                        <h2 class="salary-modal-title">Unlock Market <em>Truth</em></h2>
+                        <ul class="salary-modal-list">
+                            <li><div class="salary-modal-icon">1</div> <span>Reveal global salary benchmarks and real-time ranges.</span></li>
+                            <li><div class="salary-modal-icon">2</div> <span>Gain absolute transparency on your current market value.</span></li>
+                            <li><div class="salary-modal-icon">3</div> <span>Access detailed breakdowns by experience and geography.</span></li>
+                            <li><div class="salary-modal-icon">4</div> <span>Contribute to a fairer, data-driven job ecosystem.</span></li>
+                        </ul>
+                        <div style="display: flex; gap: 12px;">
+                            <a asp-controller="Salary" asp-action="Submit" class="btn-primary-nav" style="flex: 1; padding: 14px; border: var(--border) !important; text-align: center;" onclick="markPromptSeen()">Contribute Now</a>
+                            <button style="flex: 1; border: var(--border); padding: 14px;" onclick="markPromptSeen()">Later</button>
+                        </div>
                     </div>
                 </div>
+                <script>
+                    function markPromptSeen() {
+                        fetch('/Account/MarkSalaryPromptAsSeen', { method: 'POST', headers: { 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value } });
+                        document.getElementById('salaryPromptOverlay').style.display = 'none';
+                    }
+                </script>
             }
-            else
-            {
-                <a asp-controller="Account" asp-action="Login" class="text-gray-800 dark:text-white hover:bg-gray-50 focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-4 py-2 lg:px-5 lg:py-2.5 mr-2 dark:hover:bg-gray-700 focus:outline-none dark:focus:ring-gray-800">Log in</a>
-                <a asp-controller="Account" asp-action="Register" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 lg:px-5 lg:py-2.5 mr-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">Get started</a>
-            }
-            <button data-collapse-toggle="mobile-menu-2" type="button" class="inline-flex items-center p-2 ml-1 text-sm text-gray-500 rounded-lg lg:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="mobile-menu-2" aria-expanded="false">
-                <span class="sr-only">Open main menu</span>
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg>
-                <svg class="hidden w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-            </button>
-        </div>
-        <div class="hidden justify-between items-center w-full lg:flex lg:w-auto lg:order-1" id="mobile-menu-2">
-            <ul class="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
-                <li>
-                    <a asp-controller="Home" asp-action="Index" class="block py-2 pr-4 pl-3 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-blue-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" && ViewContext.RouteData.Values["action"]?.ToString() == "Index" ? "text-blue-700 dark:text-white font-bold" : "text-gray-700")">Home</a>
-                </li>
-                <li>
-                    <a asp-controller="Jobs" asp-action="Index" class="block py-2 pr-4 pl-3 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-blue-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Jobs" ? "text-blue-700 dark:text-white font-bold" : "text-gray-700")">Jobs</a>
-                </li>
-                <li>
-                    <a asp-controller="Rankings" asp-action="Index" class="block py-2 pr-4 pl-3 border-b border-gray-100 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-blue-700 lg:p-0 dark:text-gray-400 lg:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white lg:dark:hover:bg-transparent dark:border-gray-700 @(ViewContext.RouteData.Values["controller"]?.ToString() == "Rankings" ? "text-blue-700 dark:text-white font-bold" : "text-gray-700")">Rankings</a>
-                </li>
-            </ul>
-        </div>
+
+            <a asp-controller="Profile" asp-action="Index" class="user-pill">
+                <div class="user-circle">
+                    @if (user != null && !string.IsNullOrEmpty(user.ProfilePicture))
+                    {
+                        <img src="~/Img/@user.ProfilePicture?v=@DateTime.Now.Ticks" alt="Profile" />
+                    }
+                    else
+                    {
+                        <span>@(user?.DisplayName?[0] ?? '?')</span>
+                    }
+                </div>
+                <span class="hidden md:inline">Dashboard</span>
+            </a>
+            <form asp-controller="Account" asp-action="Logout" method="post" style="display: flex;">
+                @Html.AntiForgeryToken()
+                <button type="submit">Sign out</button>
+            </form>
+        }
+        else
+        {
+            <a asp-controller="Account" asp-action="Login">Log in</a>
+            <a asp-controller="Account" asp-action="Register" class="btn-primary-nav">Get Started</a>
+        }
     </div>
 </nav>

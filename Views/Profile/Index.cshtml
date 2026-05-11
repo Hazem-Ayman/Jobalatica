@@ -3,112 +3,163 @@
     ViewData["Title"] = "My Profile";
 }
 
-<div class="flex flex-col lg:flex-row gap-8">
-    <!-- Left Sidebar: Profile Summary -->
-    <aside class="w-full lg:w-72 flex-shrink-0">
-        <div class="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 text-center sticky top-4">
-            <div class="relative w-32 h-32 mx-auto mb-4">
-                <div class="w-full h-full rounded-full bg-blue-500 flex items-center justify-center text-white text-4xl font-bold">
-                    @(string.IsNullOrEmpty(Model.DisplayName) ? "?" : Model.DisplayName.Substring(0, 1).ToUpper())
-                </div>
-            </div>
-            <h2 class="text-xl font-bold mb-1">@Model.DisplayName</h2>
-            <p class="text-sm text-gray-500 mb-6">@User.Identity?.Name</p>
-            
-            <div class="grid grid-cols-2 gap-2 mb-8">
-                <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-xl">
-                    <span class="block text-lg font-bold">@Model.SavedJobs.Count</span>
-                    <span class="text-[10px] text-gray-400 uppercase font-bold">Saved</span>
-                </div>
-                <div class="p-3 bg-gray-50 dark:bg-gray-700 rounded-xl">
-                    <span class="block text-lg font-bold">@Model.UserSkillIds.Count</span>
-                    <span class="text-[10px] text-gray-400 uppercase font-bold">Skills</span>
-                </div>
-            </div>
+<style>
+    .profile-layout { display: grid; grid-template-columns: 300px 1fr; min-height: 80vh; border-bottom: var(--border); }
+    .profile-sidebar { border-right: var(--border); }
+    .identity-node { padding: 48px 32px; border-bottom: var(--border); text-align: center; }
+    .identity-circle { width: 80px; height: 80px; background: var(--ink); border-radius: 50%; display: grid; place-items: center; font-family: var(--serif); font-size: 32px; font-weight: 900; color: var(--parchment); margin: 0 auto 16px; }
+    .identity-name { font-family: var(--serif); font-size: 22px; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 4px; }
+    .identity-email { font-size: 12px; color: rgba(26,22,18,0.45); }
+    
+    .quick-stats { border-bottom: var(--border); display: grid; grid-template-columns: 1fr 1fr; }
+    .qs-cell { padding: 24px 20px; border-right: var(--border); text-align: center; }
+    .qs-cell:last-child { border-right: none; }
+    .qs-num { font-family: var(--serif); font-size: 36px; font-weight: 900; letter-spacing: -0.04em; display: block; }
+    .qs-label { font-size: 9px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(26,22,18,0.4); display: block; margin-top: 4px; }
+    
+    .local-nav { padding: 16px 0; }
+    .local-nav a { display: flex; align-items: center; gap: 10px; padding: 12px 32px; font-size: 13px; font-weight: 500; text-decoration: none; color: rgba(26,22,18,0.5); transition: background 0.12s; border-left: 3px solid transparent; }
+    .local-nav a.active { color: var(--ink); font-weight: 700; border-left-color: var(--ink); background: var(--parchment-2); }
 
-            <nav class="space-y-2">
-                <a href="/Profile" class="flex items-center p-3 text-sm font-bold bg-blue-50 text-blue-700 rounded-xl dark:bg-blue-900 dark:text-blue-200">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                    Settings
-                </a>
-                <a href="/Profile/SavedJobs" class="flex items-center p-3 text-sm font-bold text-gray-600 hover:bg-gray-50 rounded-xl dark:text-gray-400 dark:hover:bg-gray-700">
-                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>
-                    Saved Jobs
-                </a>
-            </nav>
+    .form-area { padding: 48px 56px; }
+    .form-header { margin-bottom: 40px; border-bottom: var(--border); padding-bottom: 28px; }
+    .form-header h2 { font-family: var(--serif); font-size: 40px; font-weight: 900; letter-spacing: -0.03em; margin-bottom: 8px; }
+    
+    .form-section { margin-bottom: 40px; }
+    .form-section-title { font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(26,22,18,0.4); margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+    
+    .field-grid { display: flex; gap: 32px; margin-bottom: 20px; align-items: flex-start; }
+    .field { display: flex; flex-direction: column; gap: 8px; }
+    .field label { font-size: 10px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(26,22,18,0.5); }
+    .field input, .field select { 
+        width: 300px; 
+        padding: 12px 16px;
+        font-family: var(--sans);
+        font-size: 14px;
+        background: var(--parchment);
+        border: var(--border);
+        outline: none;
+        color: var(--ink);
+        appearance: none;
+    }
+    .field select {
+        background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%231A1612'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 16px center;
+        padding-right: 40px;
+    }
+
+    .skill-matrix { display: flex; flex-wrap: wrap; gap: 8px; }
+    .skill-pill { position: relative; }
+    .skill-pill input[type="checkbox"] { position: absolute; opacity: 0; width: 0; height: 0; }
+    .skill-pill label { display: block; padding: 8px 16px; border: var(--border); font-size: 11px; font-weight: 600; letter-spacing: 0.06em; cursor: pointer; background: var(--parchment); transition: background 0.12s; user-select: none; }
+    .skill-pill input:checked + label { background: var(--ink); color: var(--parchment); }
+</style>
+
+<div class="profile-layout">
+    <aside class="profile-sidebar">
+        <div class="identity-node">
+            <div class="identity-circle">
+                @if (string.IsNullOrEmpty(Model.ProfilePicture) || Model.ProfilePicture == "default.png")
+                {
+                    <span>@(string.IsNullOrWhiteSpace(Model.DisplayName) ? "U" : Model.DisplayName[0].ToString().ToUpper())</span>
+                }
+                else
+                {
+                    <img src="~/Img/@Model.ProfilePicture?v=@DateTime.Now.Ticks" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />
+                }
+            </div>
+            <div class="identity-name">@Model.DisplayName</div>
+            @if (!string.IsNullOrEmpty(Model.JobTitle))
+            {
+                <div class="identity-job" style="font-family: var(--pixel); font-size: 16px; color: var(--pink); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px;">
+                    @Model.JobTitle
+                    @if (!string.IsNullOrEmpty(Model.CompanyName))
+                    {
+                        <span style="opacity: 0.8; font-size: 0.8em; margin-left: 4px; vertical-align: middle;">at @Model.CompanyName</span>
+                    }
+                </div>
+            }
+            <div class="identity-email">@User.Identity?.Name</div>
+            <div style="margin-top: 24px;">
+                <a asp-controller="Salary" asp-action="Submit" class="btn btn-dark" style="background: var(--ink); color: var(--parchment); font-size: 11px; padding: 10px 16px; width: 100%; border: var(--border);">Submit Salary Data →</a>
+            </div>
         </div>
+        <div class="quick-stats">
+            <div class="qs-cell">
+                <span class="qs-num">@Model.SavedJobs.Count</span>
+                <span class="qs-label">Saved Jobs</span>
+            </div>
+            <div class="qs-cell">
+                <span class="qs-num">@Model.UserSkillIds.Count</span>
+                <span class="qs-label">Skills</span>
+            </div>
+        </div>
+        <nav class="local-nav">
+            <a asp-controller="Profile" asp-action="Index" class="active">Settings</a>
+            <a asp-controller="Profile" asp-action="SavedJobs">Saved Signals</a>
+        </nav>
     </aside>
 
-    <!-- Right Content: Form -->
-    <div class="flex-grow">
-        @if (TempData["Success"] != null)
-        {
-            <div class="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400 font-bold" role="alert">
-                @TempData["Success"]
-            </div>
-        }
-
-        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 p-8">
-            <h2 class="text-2xl font-bold mb-8">Account Settings</h2>
-            
-            <form asp-action="SaveProfile" method="post" enctype="multipart/form-data" class="space-y-8">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div>
-                        <label asp-for="DisplayName" class="block mb-2 text-sm font-bold text-gray-500 uppercase tracking-wider">Display Name</label>
-                        <input asp-for="DisplayName" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 p-3 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    </div>
-
-                    <div>
-                        <label asp-for="ExperienceLevel" class="block mb-2 text-sm font-bold text-gray-500 uppercase tracking-wider">Experience Level</label>
-                        <select asp-for="ExperienceLevel" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-xl focus:ring-blue-500 focus:border-blue-500 p-3 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                            <option value="Entry">Entry Level</option>
-                            <option value="Mid">Mid Level</option>
-                            <option value="Senior">Senior Level</option>
-                            <option value="Lead">Lead / Architect</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block mb-4 text-sm font-bold text-gray-500 uppercase tracking-wider">Skills Selection</label>
-                    <div class="flex flex-wrap gap-2" id="skill-pills">
-                        @foreach (var skill in Model.AllSkills)
-                        {
-                            bool isSelected = Model.UserSkillIds.Contains(skill.Id);
-                            <div class="skill-pill cursor-pointer px-4 py-2 rounded-xl border-2 transition-all font-bold text-sm @(isSelected ? "bg-blue-600 border-blue-600 text-white" : "border-gray-200 text-gray-600 hover:border-blue-300")"
-                                 data-skill-id="@skill.Id">
-                                @skill.Name
-                                <input type="checkbox" name="UserSkillIds" value="@skill.Id" class="hidden" @(isSelected ? "checked" : "")>
-                            </div>
-                        }
-                    </div>
-                </div>
-
-                <div class="pt-8 border-t border-gray-100 dark:border-gray-700">
-                    <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-xl text-sm px-12 py-4 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                        Save Profile Changes
-                    </button>
-                </div>
-            </form>
+    <div class="form-area">
+        <div class="form-header">
+            <h2>Account Settings</h2>
+            <p>Manage your profile, job title, and tracked skills.</p>
         </div>
+
+        @* Image Upload Form (Separate for Auto-Submit) *@
+        <form id="profilePicForm" asp-action="UploadPhoto" method="post" enctype="multipart/form-data" style="display:none;">
+            @Html.AntiForgeryToken()
+            <input type="file" name="img_file" id="img_file_hidden" onchange="document.getElementById('profilePicForm').submit();" />
+        </form>
+
+        <form asp-action="SaveProfile" method="post">
+            @Html.AntiForgeryToken()
+            <div class="form-section">
+                <div class="form-section-title">
+                    <div class="win-dot" style="background: var(--ink); width: 8px; height: 8px;"></div>
+                    Personal Info
+                </div>
+                <div class="field-grid">
+                    <div class="field">
+                        <label asp-for="DisplayName">Display Name</label>
+                        <input asp-for="DisplayName" type="text" />
+                    </div>
+                    <div class="field">
+                        <label asp-for="JobTitle">Current Job Title</label>
+                        <input asp-for="JobTitle" type="text" placeholder="e.g. Lead Systems Architect" />
+                    </div>
+                    <div class="field">
+                        <label>Profile Picture</label>
+                        <button type="button" class="btn" style="width: fit-content;" onclick="document.getElementById('img_file_hidden').click();">
+                            Choose New Photo...
+                        </button>
+                        <span style="font-size: 10px; color: rgba(26,22,18,0.4); margin-top: 4px;">Photo updates instantly on selection.</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="form-section-title">
+                    <div class="win-dot" style="background: var(--ink); width: 8px; height: 8px;"></div>
+                    Skill Matrix — Select Your Skills
+                </div>
+                <div class="skill-matrix">
+                    @foreach (var skill in Model.AllSkills)
+                    {
+                        bool isSelected = Model.UserSkillIds.Contains(skill.Id);
+                        <div class="skill-pill">
+                            <input type="checkbox" name="UserSkillIds" value="@skill.Id" id="skill-@skill.Id" @(isSelected ? "checked" : "")>
+                            <label for="skill-@skill.Id">@skill.Name</label>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 16px; padding-top: 32px; border-top: 1px solid rgba(26,22,18,0.1);">
+                <button type="submit" class="btn btn-dark" style="background: var(--ink); color: var(--parchment);">Save Profile Changes →</button>
+                <span style="font-size: 11px; color: rgba(26,22,18,0.35);">Changes apply immediately across your saved searches.</span>
+            </div>
+        </form>
     </div>
 </div>
-
-@section Scripts {
-    <script>
-        document.querySelectorAll('.skill-pill').forEach(pill => {
-            pill.addEventListener('click', () => {
-                const checkbox = pill.querySelector('input');
-                checkbox.checked = !checkbox.checked;
-                
-                if (checkbox.checked) {
-                    pill.classList.remove('border-gray-200', 'text-gray-600', 'hover:border-blue-300');
-                    pill.classList.add('bg-blue-600', 'border-blue-600', 'text-white');
-                } else {
-                    pill.classList.add('border-gray-200', 'text-gray-600', 'hover:border-blue-300');
-                    pill.classList.remove('bg-blue-600', 'border-blue-600', 'text-white');
-                }
-            });
-        });
-    </script>
-}

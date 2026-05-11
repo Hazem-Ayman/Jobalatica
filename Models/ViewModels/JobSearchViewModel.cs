@@ -15,5 +15,7 @@ namespace Jobalatica.Models.ViewModels
         public string? ExperienceLevel { get; set; }
         public decimal? SalaryMin { get; set; }
         public decimal? SalaryMax { get; set; }
+        public List<long> SavedJobIds { get; set; } = new();
+        public List<Job> RecommendedJobs { get; set; } = new();
     }
 }
