@@ -33,6 +33,13 @@ namespace Jobalatica.Controllers
 
         public async Task<IActionResult> Index()
         {
+            // Admin always goes to Command Center
+            if (User.Identity?.IsAuthenticated == true &&
+                string.Equals(User.Identity.Name, "hazemayman494489@gmail.com", StringComparison.OrdinalIgnoreCase))
+            {
+                return RedirectToAction("Index", "Admin");
+            }
+
             var topRoles = await _rankingService.GetTopRolesAsync(15);
             var topSkills = await _rankingService.GetTopSkillsAsync(15);
             var recentJobs = await _jobService.GetRecentAsync(6);

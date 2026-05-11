@@ -5,9 +5,9 @@ namespace Jobalatica.Models.Entities
     public class ApplicationUser : IdentityUser
     {
         public string DisplayName { get; set; } = string.Empty;
+        public string ExperienceLevel { get; set; } = "Unspecified";
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime? LastLoginAt { get; set; }
-        public string ProfilePicture { get; set; } = "default.png";
         public string JobTitle { get; set; } = string.Empty;
         public string CompanyName { get; set; } = string.Empty;
         public bool HasSeenSalaryPrompt { get; set; }

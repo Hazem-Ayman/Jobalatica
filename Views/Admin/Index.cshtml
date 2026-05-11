@@ -1,0 +1,165 @@
+@model Jobalatica.Models.ViewModels.AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<style>
+    .admin-container { max-width: 1200px; margin: 0 auto; padding: 48px 56px; }
+    .admin-title { font-family: var(--serif); font-size: 40px; font-weight: 900; letter-spacing: -0.03em; margin-bottom: 8px; }
+    .admin-sub { font-size: 13px; color: rgba(26,22,18,0.45); margin-bottom: 40px; }
+
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 48px; }
+    .stat-card { border: var(--border); box-shadow: var(--shadow-sm); padding: 28px 24px; background: var(--parchment); }
+    .stat-card.dark { background: var(--ink); color: var(--parchment); }
+    .stat-card-label { font-family: var(--pixel); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(26,22,18,0.4); margin-bottom: 12px; }
+    .stat-card.dark .stat-card-label { color: rgba(237,232,223,0.4); }
+    .stat-card-value { font-family: var(--serif); font-size: 44px; font-weight: 900; letter-spacing: -0.04em; }
+    .stat-card-diff { font-size: 12px; font-weight: 700; color: var(--green); margin-top: 8px; }
+
+    .admin-section { margin-bottom: 48px; }
+    .admin-section-title { font-family: var(--serif); font-size: 24px; font-weight: 900; letter-spacing: -0.02em; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; }
+    .admin-section-title .dot { width: 8px; height: 8px; background: var(--pink); }
+
+    .admin-table { width: 100%; border-collapse: collapse; border: var(--border); }
+    .admin-table thead { background: var(--ink); color: var(--parchment); }
+    .admin-table th { padding: 12px 16px; font-family: var(--pixel); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; text-align: left; font-weight: 400; }
+    .admin-table td { padding: 14px 16px; border-bottom: 1px solid rgba(26,22,18,0.08); font-size: 13px; vertical-align: middle; }
+    .admin-table tr:hover td { background: var(--parchment-2); }
+    .admin-table .mono { font-family: var(--pixel); font-size: 12px; }
+
+    .btn-danger { background: #e74c3c; color: #fff; border: var(--border); padding: 6px 14px; font-family: var(--pixel); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: opacity 0.15s; }
+    .btn-danger:hover { opacity: 0.8; }
+</style>
+
+<div class="admin-container">
+    <div class="admin-title">Command Center</div>
+    <div class="admin-sub">Platform overview · @DateTime.Now.ToString("dddd, MMMM dd yyyy · HH:mm")</div>
+
+    <!-- STATS -->
+    <div class="stats-row">
+        <div class="stat-card dark">
+            <div class="stat-card-label">Total Users</div>
+            <div class="stat-card-value">@Model.TotalUsers</div>
+            <div class="stat-card-diff">+@Model.NewUsersToday today</div>
+        </div>
+        <div class="stat-card dark">
+            <div class="stat-card-label">Total Jobs</div>
+            <div class="stat-card-value">@Model.TotalJobs</div>
+            <div class="stat-card-diff">+@Model.NewJobsToday today</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-label">Salary Reports</div>
+            <div class="stat-card-value">@Model.TotalSalaryReports</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-card-label">Saved Jobs</div>
+            <div class="stat-card-value">@Model.TotalSavedJobs</div>
+        </div>
+    </div>
+
+    <!-- RECENT USERS -->
+    <div class="admin-section">
+        <div class="admin-section-title"><div class="dot"></div> Recent Users</div>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Job Title</th>
+                    <th>Joined</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model.RecentUsers)
+                {
+                    <tr>
+                        <td style="font-weight: 600;">@(string.IsNullOrEmpty(user.DisplayName) ? "—" : user.DisplayName)</td>
+                        <td class="mono">@user.Email</td>
+                        <td>@(string.IsNullOrEmpty(user.JobTitle) ? "—" : user.JobTitle)</td>
+                        <td class="mono">@user.CreatedAt.ToString("MM.dd.yy")</td>
+                        <td>
+                            <form asp-action="DeleteUser" method="post" style="display:inline;" onsubmit="return confirm('Delete this user?');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@user.Id" />
+                                <button type="submit" class="btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- RECENT SALARY REPORTS -->
+    <div class="admin-section">
+        <div class="admin-section-title"><div class="dot"></div> Recent Salary Reports</div>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Job Title</th>
+                    <th>Company</th>
+                    <th>Location</th>
+                    <th>Salary</th>
+                    <th>Experience</th>
+                    <th>Date</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var report in Model.RecentSalaryReports)
+                {
+                    <tr>
+                        <td style="font-weight: 600;">@report.JobTitle</td>
+                        <td>@(string.IsNullOrEmpty(report.CompanyName) ? "—" : report.CompanyName)</td>
+                        <td>@report.Location</td>
+                        <td class="mono" style="font-weight: 700;">$@report.Salary.ToString("N0") @report.Currency</td>
+                        <td class="mono">@report.YearsExperience yrs</td>
+                        <td class="mono">@report.SubmittedAt.ToString("MM.dd.yy")</td>
+                        <td>
+                            <form asp-action="DeleteSalaryReport" method="post" style="display:inline;" onsubmit="return confirm('Delete this report?');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@report.Id" />
+                                <button type="submit" class="btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- RECENT JOBS -->
+    <div class="admin-section">
+        <div class="admin-section-title"><div class="dot"></div> Recent Jobs</div>
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Company</th>
+                    <th>Location</th>
+                    <th>Posted</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var job in Model.RecentJobs)
+                {
+                    <tr>
+                        <td style="font-weight: 600;">@job.Title</td>
+                        <td>@job.Company</td>
+                        <td>@job.Location</td>
+                        <td class="mono">@job.PostedAt.ToString("MM.dd.yy")</td>
+                        <td>
+                            <form asp-action="DeleteJob" method="post" style="display:inline;" onsubmit="return confirm('Delete this job?');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@job.Id" />
+                                <button type="submit" class="btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

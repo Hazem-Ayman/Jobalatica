@@ -60,14 +60,7 @@
     <aside class="profile-sidebar">
         <div class="identity-node">
             <div class="identity-circle">
-                @if (string.IsNullOrEmpty(Model.ProfilePicture) || Model.ProfilePicture == "default.png")
-                {
-                    <span>@(string.IsNullOrWhiteSpace(Model.DisplayName) ? "U" : Model.DisplayName[0].ToString().ToUpper())</span>
-                }
-                else
-                {
-                    <img src="~/Img/@Model.ProfilePicture?v=@DateTime.Now.Ticks" alt="Profile Picture" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;" />
-                }
+                <span>@(string.IsNullOrWhiteSpace(Model.DisplayName) ? "U" : Model.DisplayName[0].ToString().ToUpper())</span>
             </div>
             <div class="identity-name">@Model.DisplayName</div>
             @if (!string.IsNullOrEmpty(Model.JobTitle))
@@ -107,12 +100,6 @@
             <p>Manage your profile, job title, and tracked skills.</p>
         </div>
 
-        @* Image Upload Form (Separate for Auto-Submit) *@
-        <form id="profilePicForm" asp-action="UploadPhoto" method="post" enctype="multipart/form-data" style="display:none;">
-            @Html.AntiForgeryToken()
-            <input type="file" name="img_file" id="img_file_hidden" onchange="document.getElementById('profilePicForm').submit();" />
-        </form>
-
         <form asp-action="SaveProfile" method="post">
             @Html.AntiForgeryToken()
             <div class="form-section">
@@ -128,13 +115,6 @@
                     <div class="field">
                         <label asp-for="JobTitle">Current Job Title</label>
                         <input asp-for="JobTitle" type="text" placeholder="e.g. Lead Systems Architect" />
-                    </div>
-                    <div class="field">
-                        <label>Profile Picture</label>
-                        <button type="button" class="btn" style="width: fit-content;" onclick="document.getElementById('img_file_hidden').click();">
-                            Choose New Photo...
-                        </button>
-                        <span style="font-size: 10px; color: rgba(26,22,18,0.4); margin-top: 4px;">Photo updates instantly on selection.</span>
                     </div>
                 </div>
             </div>

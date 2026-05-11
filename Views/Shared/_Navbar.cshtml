@@ -43,69 +43,80 @@
         <div class="nav-logo-icon"><span></span></div>
         JobPulse
     </a>
-    <ul class="nav-links">
-        <li>
-            <a asp-controller="Home" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">
-                <svg class="nav-dot" viewBox="0 0 8 8"><rect width="8" height="8" fill="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "#4ADE80" : "#1A1612")"/></svg>
-                Home
+    @{
+        var isAdminUser = string.Equals(User.Identity?.Name, "hazemayman494489@gmail.com", StringComparison.OrdinalIgnoreCase);
+    }
+    @if (!isAdminUser)
+    {
+        <ul class="nav-links">
+            <li>
+                <a asp-controller="Home" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "active" : "")">
+                    <svg class="nav-dot" viewBox="0 0 8 8"><rect width="8" height="8" fill="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Home" ? "#4ADE80" : "#1A1612")"/></svg>
+                    Home
+                </a>
+            </li>
+            <li>
+                <a asp-controller="Jobs" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Jobs" ? "active" : "")">
+                    <svg class="nav-dot" viewBox="0 0 8 8"><rect width="8" height="8" fill="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Jobs" ? "#4ADE80" : "#1A1612")"/></svg>
+                    Jobs
+                </a>
+            </li>
+            <li>
+                <a asp-controller="Rankings" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Rankings" ? "active" : "")">
+                    <svg class="nav-dot" viewBox="0 0 8 8"><rect width="8" height="8" fill="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Rankings" ? "#4ADE80" : "#1A1612")"/></svg>
+                    Rankings
+                </a>
+            </li>
+        </ul>
+    }
+    else
+    {
+        <div style="flex: 1; display: flex; align-items: center; justify-content: center; border-right: var(--border); border-left: var(--border);">
+            <a asp-controller="Admin" asp-action="Index" style="display: flex; align-items: center; gap: 10px; font-family: var(--pixel); font-size: 16px; font-weight: 700; text-decoration: none; color: var(--pink); text-transform: uppercase; letter-spacing: 0.1em;">
+                <svg class="nav-dot" viewBox="0 0 8 8"><rect width="8" height="8" fill="#F2708A"/></svg>
+                Command Center
             </a>
-        </li>
-        <li>
-            <a asp-controller="Jobs" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Jobs" ? "active" : "")">
-                <svg class="nav-dot" viewBox="0 0 8 8"><rect width="8" height="8" fill="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Jobs" ? "#4ADE80" : "#1A1612")"/></svg>
-                Jobs
-            </a>
-        </li>
-        <li>
-            <a asp-controller="Rankings" asp-action="Index" class="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Rankings" ? "active" : "")">
-                <svg class="nav-dot" viewBox="0 0 8 8"><rect width="8" height="8" fill="@(ViewContext.RouteData.Values["controller"]?.ToString() == "Rankings" ? "#4ADE80" : "#1A1612")"/></svg>
-                Rankings
-            </a>
-        </li>
-    </ul>
+        </div>
+    }
     <div class="nav-right">
         @if (User.Identity?.IsAuthenticated == true)
         {
             var user = await UserManager.GetUserAsync(User);
             
-            if (user != null && !user.HasSeenSalaryPrompt)
+            @if (!isAdminUser)
             {
-                <div class="salary-modal-overlay" id="salaryPromptOverlay" style="display: flex;">
-                    <div class="salary-modal">
-                        <h2 class="salary-modal-title">Unlock Market <em>Truth</em></h2>
-                        <ul class="salary-modal-list">
-                            <li><div class="salary-modal-icon">1</div> <span>Reveal global salary benchmarks and real-time ranges.</span></li>
-                            <li><div class="salary-modal-icon">2</div> <span>Gain absolute transparency on your current market value.</span></li>
-                            <li><div class="salary-modal-icon">3</div> <span>Access detailed breakdowns by experience and geography.</span></li>
-                            <li><div class="salary-modal-icon">4</div> <span>Contribute to a fairer, data-driven job ecosystem.</span></li>
-                        </ul>
-                        <div style="display: flex; gap: 12px;">
-                            <a asp-controller="Salary" asp-action="Submit" class="btn-primary-nav" style="flex: 1; padding: 14px; border: var(--border) !important; text-align: center;" onclick="markPromptSeen()">Contribute Now</a>
-                            <button style="flex: 1; border: var(--border); padding: 14px;" onclick="markPromptSeen()">Later</button>
+                if (user != null && !user.HasSeenSalaryPrompt)
+                {
+                    <div class="salary-modal-overlay" id="salaryPromptOverlay" style="display: flex;">
+                        <div class="salary-modal">
+                            <h2 class="salary-modal-title">Unlock Market <em>Truth</em></h2>
+                            <ul class="salary-modal-list">
+                                <li><div class="salary-modal-icon">1</div> <span>Reveal global salary benchmarks and real-time ranges.</span></li>
+                                <li><div class="salary-modal-icon">2</div> <span>Gain absolute transparency on your current market value.</span></li>
+                                <li><div class="salary-modal-icon">3</div> <span>Access detailed breakdowns by experience and geography.</span></li>
+                                <li><div class="salary-modal-icon">4</div> <span>Contribute to a fairer, data-driven job ecosystem.</span></li>
+                            </ul>
+                            <div style="display: flex; gap: 12px;">
+                                <a asp-controller="Salary" asp-action="Submit" class="btn-primary-nav" style="flex: 1; padding: 14px; border: var(--border) !important; text-align: center;" onclick="markPromptSeen()">Contribute Now</a>
+                                <button style="flex: 1; border: var(--border); padding: 14px;" onclick="markPromptSeen()">Later</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <script>
-                    function markPromptSeen() {
-                        fetch('/Account/MarkSalaryPromptAsSeen', { method: 'POST', headers: { 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value } });
-                        document.getElementById('salaryPromptOverlay').style.display = 'none';
-                    }
-                </script>
-            }
+                    <script>
+                        function markPromptSeen() {
+                            fetch('/Account/MarkSalaryPromptAsSeen', { method: 'POST', headers: { 'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value } });
+                            document.getElementById('salaryPromptOverlay').style.display = 'none';
+                        }
+                    </script>
+                }
 
-            <a asp-controller="Profile" asp-action="Index" class="user-pill">
-                <div class="user-circle">
-                    @if (user != null && !string.IsNullOrEmpty(user.ProfilePicture))
-                    {
-                        <img src="~/Img/@user.ProfilePicture?v=@DateTime.Now.Ticks" alt="Profile" />
-                    }
-                    else
-                    {
+                <a asp-controller="Profile" asp-action="Index" class="user-pill">
+                    <div class="user-circle">
                         <span>@(user?.DisplayName?[0] ?? '?')</span>
-                    }
-                </div>
-                <span class="hidden md:inline">Dashboard</span>
-            </a>
+                    </div>
+                    <span class="hidden md:inline">Dashboard</span>
+                </a>
+            }
             <form asp-controller="Account" asp-action="Logout" method="post" style="display: flex;">
                 @Html.AntiForgeryToken()
                 <button type="submit">Sign out</button>

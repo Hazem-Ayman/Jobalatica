@@ -30,17 +30,6 @@ try
     builder.Services.Configure<BrevoSettings>(builder.Configuration.GetSection("Brevo"));
     builder.Services.AddTransient<IEmailSender, EmailSender>();
 
-    // Allow file uploads up to 5MB
-    builder.Services.Configure<Microsoft.AspNetCore.Http.Features.FormOptions>(options =>
-    {
-        options.MultipartBodyLengthLimit = 5242880; // 5MB
-    });
-
-    builder.WebHost.ConfigureKestrel(options =>
-    {
-        options.Limits.MaxRequestBodySize = 5242880; // 5MB
-    });
-
     builder.Services.AddScoped<IJobService, JobService>();
     builder.Services.AddScoped<IRankingService, RankingService>();
     builder.Services.AddScoped<IRecommendationService, RecommendationService>();

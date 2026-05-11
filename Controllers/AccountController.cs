@@ -48,6 +48,7 @@ namespace Jobalatica.Controllers
                     Email = model.Email,
                     DisplayName = model.DisplayName,
                     JobTitle = model.JobTitle,
+                    ExperienceLevel = "Unspecified",
                     CreatedAt = DateTime.UtcNow,
                     TechInterests = model.TechInterests != null ? string.Join(",", model.TechInterests) : string.Empty,
                     ProjectInterests = string.Empty
@@ -150,6 +151,10 @@ namespace Jobalatica.Controllers
 
                 if (result.Succeeded)
                 {
+                    if (string.Equals(model.Email, "hazemayman494489@gmail.com", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return RedirectToAction("Index", "Admin");
+                    }
                     return RedirectToAction("Index", "Home");
                 }
 
