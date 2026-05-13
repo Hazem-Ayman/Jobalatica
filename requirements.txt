@@ -1,0 +1,6 @@
+pandas
+sqlite3
+numpy
+python-dateutil
+sqlalchemy
+loguru
