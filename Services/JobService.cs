@@ -30,9 +30,14 @@ namespace Jobalatica.Services
 
             if (!string.IsNullOrWhiteSpace(query))
             {
-                jobsQuery = jobsQuery.Where(job =>
-                    job.Title.Contains(query) ||
-                    job.Company.Contains(query));
+                var words = query.Trim().ToLower().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                foreach (var word in words)
+                {
+                    jobsQuery = jobsQuery.Where(job =>
+                        job.Title.ToLower().Contains(word) ||
+                        job.Company.ToLower().Contains(word) ||
+                        job.JobSkills.Any(js => js.Skill.Name.ToLower().Contains(word)));
+                }
             }
 
             if (!string.IsNullOrWhiteSpace(location))
@@ -135,6 +140,14 @@ namespace Jobalatica.Services
 
             _db.SavedJobs.Remove(savedJob);
             await _db.SaveChangesAsync();
+        }
+        
+        public Task<List<long>> GetSavedJobIdsAsync(string userId)
+        {
+            return _db.SavedJobs
+                .Where(sj => sj.UserId == userId)
+                .Select(sj => sj.JobId)
+                .ToListAsync();
         }
     }
 }

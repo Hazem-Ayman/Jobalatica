@@ -12,5 +12,6 @@ namespace Jobalatica.Models.ViewModels
         public List<Job> SampleJobs { get; set; } = new();
         public List<Skill> CommonSkills { get; set; } = new();
         public bool HasContributedSalary { get; set; }
+        public List<long> SavedJobIds { get; set; } = new();
     }
 }

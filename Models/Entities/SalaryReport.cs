@@ -5,6 +5,7 @@ namespace Jobalatica.Models.Entities
         public int Id { get; set; }
         public string? UserId { get; set; }
         public string JobTitle { get; set; } = string.Empty;
+        public string CompanyName { get; set; } = string.Empty;
         public string Location { get; set; } = string.Empty;
         public decimal Salary { get; set; }
         public string Currency { get; set; } = "USD";

@@ -41,7 +41,9 @@ namespace Jobalatica.Controllers
             var vm = new ProfileViewModel
             {
                 DisplayName = user.DisplayName,
-                ExperienceLevel = user.ExperienceLevel,
+                JobTitle = user.JobTitle,
+                CompanyName = user.CompanyName,
+                ProfilePictureUrl = user.ProfilePictureUrl,
                 AllSkills = allSkills,
                 UserSkillIds = user.UserSkills.Select(us => us.SkillId).ToList(),
                 SavedJobs = user.SavedJobs.ToList()
@@ -58,30 +60,60 @@ namespace Jobalatica.Controllers
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
             if (user == null) return NotFound();
 
-            user.DisplayName = model.DisplayName ?? user.DisplayName;
-            user.ExperienceLevel = model.ExperienceLevel ?? user.ExperienceLevel;
-
-            var result = await _userManager.UpdateAsync(user);
-
-            if (result.Succeeded)
+            try
             {
-                // Update Skills - Efficiently
-                var currentSkills = await _context.UserSkills.Where(us => us.UserId == user.Id).ToListAsync();
-                _context.UserSkills.RemoveRange(currentSkills);
+                user.DisplayName = model.DisplayName;
+                user.JobTitle = model.JobTitle ?? user.JobTitle;
 
-                if (model.UserSkillIds != null && model.UserSkillIds.Any())
+                if (model.ProfilePicture != null)
                 {
-                    foreach (var skillId in model.UserSkillIds)
+                    // Ensure we use the correct physical path even if launched from different working directories
+                    string webRootPath = _hostEnvironment.WebRootPath ?? Path.Combine(_hostEnvironment.ContentRootPath, "wwwroot");
+                    string uploadsFolder = Path.Combine(webRootPath, "uploads", "profiles");
+                    
+                    if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
+                    string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(model.ProfilePicture.FileName);
+                    string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
                     {
-                        _context.UserSkills.Add(new UserSkill { UserId = user.Id, SkillId = skillId });
+                        await model.ProfilePicture.CopyToAsync(fileStream);
                     }
+
+                    user.ProfilePictureUrl = "/uploads/profiles/" + uniqueFileName;
                 }
 
-                await _context.SaveChangesAsync();
-                TempData["Success"] = "Profile updated!";
+                var result = await _userManager.UpdateAsync(user);
+                if (result.Succeeded)
+                {
+                    var currentSkills = await _context.UserSkills.Where(us => us.UserId == user.Id).ToListAsync();
+                    _context.UserSkills.RemoveRange(currentSkills);
+
+                    if (model.UserSkillIds != null)
+                    {
+                        foreach (var skillId in model.UserSkillIds)
+                        {
+                            _context.UserSkills.Add(new UserSkill { UserId = user.Id, SkillId = skillId });
+                        }
+                    }
+
+                    await _context.SaveChangesAsync();
+                }
+                return RedirectToAction(nameof(Index));
             }
-            
-            return RedirectToAction(nameof(Index));
+            catch (Exception)
+            {
+                return await RepopulateAndReturn(model, user);
+            }
+        }
+
+        private async Task<IActionResult> RepopulateAndReturn(ProfileViewModel model, ApplicationUser user)
+        {
+            model.AllSkills = await _context.Skills.OrderBy(s => s.Name).ToListAsync();
+            model.UserSkillIds = await _context.UserSkills.Where(us => us.UserId == user.Id).Select(us => us.SkillId).ToListAsync();
+            model.SavedJobs = await _context.SavedJobs.Where(sj => sj.UserId == user.Id).Include(sj => sj.Job).ToListAsync();
+            return View("Index", model);
         }
 
         [HttpGet]

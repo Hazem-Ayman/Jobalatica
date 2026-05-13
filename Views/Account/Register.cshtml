@@ -1,52 +1,204 @@
 @model Jobalatica.Models.ViewModels.RegisterViewModel
 @{
-    ViewData["Title"] = "Create your account";
+    ViewData["Title"] = "Create Account";
 }
 
-<div class="flex items-center justify-center min-h-[80vh]">
-    <div class="w-full max-w-md p-8 bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700">
-        <div class="text-center mb-8">
-            <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Join JobPulse</h1>
-            <p class="text-gray-500 dark:text-gray-400 mt-2">Start tracking your market value today.</p>
-        </div>
+<style>
+    .auth-container { 
+        min-height: 80vh; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        padding: 40px 20px;
+    }
+    .auth-card { 
+        background: var(--parchment); 
+        border: var(--border); 
+        box-shadow: var(--shadow); 
+        width: 100%; 
+        max-width: 800px; 
+        padding: 64px; 
+    }
+    .auth-title { 
+        font-family: var(--serif); 
+        font-size: 56px; 
+        font-weight: 900; 
+        letter-spacing: -0.03em; 
+        margin-bottom: 8px; 
+        color: var(--ink); 
+        text-align: center;
+    }
+    .auth-sub { 
+        font-size: 16px; 
+        color: rgba(26,22,18,0.5); 
+        text-align: center; 
+        margin-bottom: 56px; 
+    }
+    .form-section-title {
+        font-family: var(--serif);
+        font-size: 24px;
+        font-weight: 800;
+        margin: 48px 0 24px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: var(--ink);
+    }
+    .form-section-num {
+        font-family: var(--sans);
+        font-size: 12px;
+        width: 24px;
+        height: 24px;
+        background: var(--ink);
+        color: var(--parchment);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 
-        <form asp-action="Register" method="post" class="space-y-6">
-            <div asp-validation-summary="ModelOnly" class="text-red-500 text-sm font-medium"></div>
+    .role-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .role-card { 
+        border: var(--border); 
+        padding: 24px; 
+        cursor: pointer; 
+        background: var(--parchment); 
+        transition: all 0.15s;
+        position: relative;
+    }
+    .role-card:hover { transform: translate(-2px, -2px); box-shadow: var(--shadow-sm); }
+    .role-card.active { background: white; box-shadow: 6px 6px 0 var(--ink); border-color: var(--ink); }
+    .role-card input { position: absolute; opacity: 0; }
+    .role-card-title { font-weight: 800; font-size: 16px; margin-bottom: 4px; display: block; }
+    .role-card-desc { font-size: 12px; color: rgba(26,22,18,0.5); line-height: 1.4; }
 
-            <div>
-                <label asp-for="DisplayName" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Display Name</label>
-                <input asp-for="DisplayName" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="John Doe">
-                <span asp-validation-for="DisplayName" class="text-red-500 text-xs mt-1"></span>
-            </div>
+    .pill-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+    .pill-item { 
+        padding: 8px 18px; 
+        border: var(--border); 
+        font-size: 13px; 
+        font-weight: 700; 
+        cursor: pointer; 
+        background: var(--parchment); 
+        transition: all 0.1s;
+    }
+    .pill-item:hover { background: var(--parchment-2); }
+    .pill-item.active { background: var(--lavender); box-shadow: 3px 3px 0 var(--ink); transform: translate(-1px, -1px); }
+    .pill-item input { display: none; }
 
-            <div>
-                <label asp-for="Email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email Address</label>
-                <input asp-for="Email" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="name@company.com">
-                <span asp-validation-for="Email" class="text-red-500 text-xs mt-1"></span>
-            </div>
+    .strength-meter { 
+        height: 4px; 
+        width: 100%; 
+        background: var(--parchment-2); 
+        border: 1px solid var(--ink); 
+        margin-top: 8px; 
+        position: relative;
+    }
+    .strength-fill { height: 100%; background: var(--ink); width: 0%; transition: all 0.3s; }
 
-            <div>
-                <label asp-for="Password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Password</label>
-                <input asp-for="Password" id="password" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
-                <div class="mt-2 h-1 w-full bg-gray-200 rounded-full overflow-hidden">
-                    <div id="password-strength" class="h-full bg-gray-300 transition-all duration-300" style="width: 0%"></div>
+    .form-group { margin-bottom: 20px; }
+    .form-label { 
+        display: block; 
+        font-size: 11px; 
+        font-weight: 700; 
+        letter-spacing: 0.12em; 
+        text-transform: uppercase; 
+        color: var(--ink); 
+        margin-bottom: 8px; 
+    }
+    .form-input { 
+        width: 100%; 
+        max-width: 400px;
+        padding: 12px 16px; 
+        font-family: var(--sans); 
+        font-size: 14px; 
+        background: var(--parchment); 
+        border: var(--border); 
+        outline: none; 
+        color: var(--ink); 
+    }
+    .form-input:focus { background: white; }
+    
+    .btn-auth { 
+        padding: 14px 28px; 
+        background: var(--pink); 
+        border: var(--border); 
+        font-family: var(--sans); 
+        font-size: 13px; 
+        font-weight: 700; 
+        letter-spacing: 0.1em; 
+        text-transform: uppercase; 
+        cursor: pointer; 
+        box-shadow: var(--shadow-sm); 
+        transition: all 0.1s; 
+    }
+    .btn-auth:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+
+    .auth-link { font-size: 13px; color: rgba(26,22,18,0.5); }
+    .auth-link a { color: var(--ink); font-weight: 700; text-decoration: underline; }
+</style>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <h1 class="auth-title">Join the <em>Collective</em></h1>
+        <p class="auth-sub">Initialize your profile and track market velocity.</p>
+
+        <form asp-action="Register" method="post">
+            <div asp-validation-summary="ModelOnly" style="color: var(--pink); font-size: 12px; margin-bottom: 20px; font-weight: 700;"></div>
+
+            <div class="form-section-title"><span class="form-section-num">1</span> Core Identity</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                <div class="form-group">
+                    <label asp-for="DisplayName" class="form-label">Display Name</label>
+                    <input asp-for="DisplayName" class="form-input" placeholder="John Doe">
+                    <span asp-validation-for="DisplayName" style="color: var(--pink); font-size: 11px;"></span>
                 </div>
-                <span asp-validation-for="Password" class="text-red-500 text-xs mt-1"></span>
+
+                <div class="form-group">
+                    <label asp-for="JobTitle" class="form-label">Job Title</label>
+                    <input asp-for="JobTitle" class="form-input" placeholder="Fullstack Developer">
+                    <span asp-validation-for="JobTitle" style="color: var(--pink); font-size: 11px;"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Email" class="form-label">Email Address</label>
+                    <input asp-for="Email" class="form-input" placeholder="name@company.com">
+                    <span asp-validation-for="Email" style="color: var(--pink); font-size: 11px;"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Password" class="form-label">Password</label>
+                    <input asp-for="Password" id="password" type="password" class="form-input">
+                    <div class="strength-meter">
+                        <div id="password-strength" class="strength-fill"></div>
+                    </div>
+                    <span asp-validation-for="Password" style="color: var(--pink); font-size: 11px;"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ConfirmPassword" class="form-label">Confirm Password</label>
+                    <input asp-for="ConfirmPassword" type="password" class="form-input">
+                    <span asp-validation-for="ConfirmPassword" style="color: var(--pink); font-size: 11px;"></span>
+                </div>
             </div>
 
-            <div>
-                <label asp-for="ConfirmPassword" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Confirm Password</label>
-                <input asp-for="ConfirmPassword" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
-                <span asp-validation-for="ConfirmPassword" class="text-red-500 text-xs mt-1"></span>
+            <div class="form-section-title"><span class="form-section-num">2</span> Technical Signal</div>
+            <p style="font-size: 11px; font-weight: 700; text-transform: uppercase; color: rgba(26,22,18,0.4); margin-bottom: 16px; letter-spacing: 0.1em;">Select Tech Stack</p>
+            <div class="pill-grid">
+                @foreach (var skill in Model.AllSkills)
+                {
+                    <label class="pill-item">
+                        <input type="checkbox" name="TechInterests" value="@skill.Name">
+                        @skill.Name
+                    </label>
+                }
             </div>
 
-            <button type="submit" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-bold rounded-lg text-sm px-5 py-3 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                Create Account
-            </button>
-
-            <p class="text-sm font-light text-gray-500 dark:text-gray-400 text-center">
-                Already have an account? <a asp-action="Login" class="font-medium text-blue-600 hover:underline dark:text-blue-500">Sign in</a>
-            </p>
+            <div style="margin-top: 64px; border-top: var(--border); padding-top: 32px; display: flex; align-items: center; justify-content: space-between;">
+                <p class="auth-link" style="margin: 0; text-align: left;">
+                    Already registered? <a asp-action="Login">Sign in</a>
+                </p>
+                <button type="submit" class="btn-auth" style="width: 240px; margin: 0;">Initialize Access →</button>
+            </div>
         </form>
     </div>
 </div>
@@ -54,6 +206,7 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
     <script>
+        // Password Strength
         const passwordInput = document.getElementById('password');
         const strengthBar = document.getElementById('password-strength');
 
@@ -66,10 +219,21 @@
             if (/[0-9]/.test(val) || /[^A-Za-z0-9]/.test(val)) strength += 25;
 
             strengthBar.style.width = strength + '%';
-            if (strength <= 25) strengthBar.className = 'h-full bg-red-500';
-            else if (strength <= 50) strengthBar.className = 'h-full bg-orange-500';
-            else if (strength <= 75) strengthBar.className = 'h-full bg-yellow-400';
-            else strengthBar.className = 'h-full bg-green-500';
+            if (strength <= 25) strengthBar.style.background = '#F2708A';
+            else if (strength <= 50) strengthBar.style.background = '#F5C4A8';
+            else if (strength <= 75) strengthBar.style.background = '#C8C3E8';
+            else strengthBar.style.background = '#4ADE80';
+        });
+
+        // Pill Item Selection
+        document.querySelectorAll('.pill-item').forEach(pill => {
+            const input = pill.querySelector('input');
+            pill.addEventListener('click', () => {
+                setTimeout(() => {
+                    if (input.checked) pill.classList.add('active');
+                    else pill.classList.remove('active');
+                }, 10);
+            });
         });
     </script>
 }

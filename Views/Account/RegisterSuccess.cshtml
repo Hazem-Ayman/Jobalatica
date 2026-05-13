@@ -1,0 +1,79 @@
+@{
+    ViewData["Title"] = "Verify Email";
+}
+
+<style>
+    .auth-container { 
+        min-height: 80vh; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        padding: 40px 20px;
+    }
+    .auth-card { 
+        background: var(--parchment); 
+        border: var(--border); 
+        box-shadow: var(--shadow); 
+        width: 100%; 
+        max-width: 440px; 
+        padding: 48px; 
+        text-align: center;
+    }
+    .auth-title { 
+        font-family: var(--serif); 
+        font-size: 36px; 
+        font-weight: 900; 
+        letter-spacing: -0.03em; 
+        margin-bottom: 24px; 
+        color: var(--ink); 
+    }
+    .auth-sub { 
+        font-size: 15px; 
+        color: rgba(26,22,18,0.6); 
+        line-height: 1.6;
+        margin-bottom: 40px; 
+    }
+    .btn-auth { 
+        display: inline-block;
+        width: 100%; 
+        padding: 14px; 
+        background: var(--pink); 
+        border: var(--border); 
+        font-family: var(--sans); 
+        font-size: 13px; 
+        font-weight: 700; 
+        letter-spacing: 0.1em; 
+        text-transform: uppercase; 
+        cursor: pointer; 
+        box-shadow: var(--shadow-sm); 
+        transition: all 0.1s; 
+        text-decoration: none;
+        color: var(--ink);
+    }
+    .btn-auth:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0 var(--ink); }
+
+    .verify-icon {
+        width: 64px;
+        height: 64px;
+        background: var(--lavender);
+        border: var(--border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 32px;
+    }
+</style>
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="verify-icon">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+        <h1 class="auth-title">Verify Your <em>Email</em></h1>
+        <p class="auth-sub">
+            We've sent a transmission to your inbox. Please confirm your email address to activate your access to the market matrix.
+        </p>
+
+        <a asp-action="Login" class="btn-auth">Proceed to Sign In →</a>
+    </div>
+</div>

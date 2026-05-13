@@ -67,6 +67,15 @@ namespace Jobalatica.Controllers
                 HasContributedSalary = hasContributed
             };
 
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                var userId = _userManager.GetUserId(User);
+                if (userId != null)
+                {
+                    vm.SavedJobIds = await _jobService.GetSavedJobIdsAsync(userId);
+                }
+            }
+
             return View(vm);
         }
     }

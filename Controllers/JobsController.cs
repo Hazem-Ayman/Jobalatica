@@ -11,15 +11,18 @@ namespace Jobalatica.Controllers
     {
         private readonly IJobService _jobService;
         private readonly IRankingService _rankingService;
+        private readonly IRecommendationService _recommendationService;
         private readonly UserManager<ApplicationUser> _userManager;
 
         public JobsController(
             IJobService jobService,
             IRankingService rankingService,
+            IRecommendationService recommendationService,
             UserManager<ApplicationUser> userManager)
         {
             _jobService = jobService;
             _rankingService = rankingService;
+            _recommendationService = recommendationService;
             _userManager = userManager;
         }
 
@@ -48,6 +51,21 @@ namespace Jobalatica.Controllers
                 SalaryMin = salaryMin,
                 SalaryMax = salaryMax
             };
+
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                var userId = _userManager.GetUserId(User);
+                if (userId != null)
+                {
+                    vm.SavedJobIds = await _jobService.GetSavedJobIdsAsync(userId);
+                    
+                    // Only show recommendations on the first page of search results to avoid repetition
+                    if (page == 1)
+                    {
+                        vm.RecommendedJobs = await _recommendationService.GetRecommendedJobsAsync(userId, 3);
+                    }
+                }
+            }
 
             if (Request.Headers.ContainsKey("HX-Request"))
             {
