@@ -49,7 +49,6 @@ from load_sqlite import (
 from generate_jobskills import generate_jobskills
 from validate import validate_jobskills_fk, validate_jobs_columns
 from snapshots import generate_demand_snapshots
-from estimate_salaries import calculate_estimates
 from config import VALIDATION_REPORT
 
 
@@ -156,10 +155,10 @@ def run():
         return
 
     # ──────────────────────────────────────────────────────────────
-    # STEP 11b — Estimate Salaries
+    # .   NOTE: Salary estimation is NOT part of the main pipeline.
+    # .   Run update_existing_estimates.py separately as a
+    # .   post-processing layer after the pipeline completes.
     # ──────────────────────────────────────────────────────────────
-    logger.info("[STEP 11b] Calculating salary estimates …")
-    df = calculate_estimates(df, db["all_jobs"])
 
     # ──────────────────────────────────────────────────────────────
     # STEP 12 — Upsert canonical skills
@@ -194,16 +193,23 @@ def run():
         jobs_for_skills["Id"] = new_job_ids
     else:
         # Fallback: re-read from DB by SourceUrl
-        import sqlite3
         from config import DB_PATH
+        import sqlite3
         urls = tuple(jobs_clean["SourceUrl"].dropna().tolist())
-        with sqlite3.connect(DB_PATH) as conn:
-            rows = conn.execute(
-                f"SELECT Id, SourceUrl FROM Jobs WHERE SourceUrl IN ({','.join('?'*len(urls))})",
-                urls
-            ).fetchall()
-        url_to_id = {r[1]: r[0] for r in rows}
-        jobs_for_skills["Id"] = jobs_for_skills["SourceUrl"].map(url_to_id)
+        if urls:
+            with sqlite3.connect(DB_PATH) as conn:
+                rows = conn.execute(
+                    f"SELECT Id, SourceUrl FROM Jobs WHERE SourceUrl IN ({','.join('?'*len(urls))})",
+                    urls
+                ).fetchall()
+            url_to_id = {r[1]: r[0] for r in rows}
+            jobs_for_skills["Id"] = jobs_for_skills["SourceUrl"].map(url_to_id)
+        else:
+            jobs_for_skills["Id"] = None
+
+    # Drop rows where ID lookup failed
+    jobs_for_skills = jobs_for_skills.dropna(subset=["Id"]).copy()
+    jobs_for_skills["Id"] = jobs_for_skills["Id"].astype(int)
 
     valid_job_ids = set(new_job_ids) | db["existing_job_ids"]
 

@@ -65,7 +65,7 @@ namespace Jobalatica.Controllers
                     YearsExperience = model.YearsExperience,
                     SkillsList = model.SkillsList,
                     SubmittedAt = DateTime.UtcNow,
-                    UserId = _userManager.GetUserId(User) ?? null
+                    UserId = _userManager.GetUserId(User)
                 };
 
                 await _salaryService.SubmitReportAsync(report);

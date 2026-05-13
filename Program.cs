@@ -34,6 +34,7 @@ try
     builder.Services.AddScoped<IRankingService, RankingService>();
     builder.Services.AddScoped<IRecommendationService, RecommendationService>();
     builder.Services.AddScoped<ISalaryService, SalaryService>();
+    builder.Services.AddSingleton<ISalaryEstimator, SalaryEstimator>();
 
     var app = builder.Build();
     var seedOnly = args.Contains("--seed-only");
@@ -41,6 +42,7 @@ try
     using (var scope = app.Services.CreateScope())
     {
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        await db.Database.MigrateAsync();
         await DbSeeder.SeedAsync(db);
 
         if (seedOnly)

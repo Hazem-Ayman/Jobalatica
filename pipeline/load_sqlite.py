@@ -28,6 +28,7 @@ def read_existing_data() -> dict:
     """
     engine = _get_engine()
     result = {
+        "all_jobs":           pd.DataFrame(),
         "existing_job_urls":  set(),
         "existing_job_keys":  set(),
         "existing_job_ids":   set(),

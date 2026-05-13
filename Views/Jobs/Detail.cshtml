@@ -1,6 +1,8 @@
 @model Jobalatica.Models.ViewModels.JobDetailViewModel
+@inject Jobalatica.Services.ISalaryEstimator SalaryEstimator
 @{
     ViewData["Title"] = Model.Job.Title;
+    var est = SalaryEstimator.GetEstimate(Model.Job);
 }
 
 <style>
@@ -211,14 +213,18 @@
                             <span>Posted Variance</span>
                         </div>
                         <div style="height: 60px; background: var(--parchment-2); border: var(--border); position: relative; display: flex; align-items: center; justify-content: center;">
-                            @if (Model.Job.SalaryMin.HasValue && Model.Job.SalaryMax.HasValue)
+                            @{
+                                var chartMin = Model.Job.SalaryMin ?? Model.Job.EstimatedSalaryMin;
+                                var chartMax = Model.Job.SalaryMax ?? Model.Job.EstimatedSalaryMax;
+                            }
+                            @if (chartMin.HasValue && chartMax.HasValue)
                             {
                                 <div style="position: absolute; top: 0; bottom: 0; left: 30%; width: 40%; background: var(--lavender); opacity: 0.4; border-left: 1px solid var(--ink); border-right: 1px solid var(--ink);"></div>
                                 <div style="width: 12px; height: 12px; background: var(--ink); position: absolute; left: 45%;"></div>
                             }
                             else
                             {
-                                <span style="font-style: italic; color: rgba(26,22,18,0.3); font-size: 13px;">Salary data unavailable for this specific signal</span>
+                                <span style="font-style: italic; color: rgba(26,22,18,0.3); font-size: 13px;">No salary baseline available</span>
                             }
                         </div>
                         <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: 600; color: rgba(26,22,18,0.3); margin-top: 12px;">
@@ -229,13 +235,23 @@
                     </div>
                     
                     <div class="salary-box" style="min-width: 240px;">
-                        <span class="salary-estimate-label">Estimated Range</span>
-                        <div class="salary-range-text">
-                            @(Model.Job.SalaryMin.HasValue ? $"${(Model.Job.SalaryMin.Value/1000).ToString("N0")}K" : "???") 
-                            — 
-                            @(Model.Job.SalaryMax.HasValue ? $"${(Model.Job.SalaryMax.Value/1000).ToString("N0")}K" : "???")
-                        </div>
-                        <span style="font-size: 11px; font-weight: 500; color: rgba(237,232,223,0.4); margin-top: 8px; display: block;">@Model.Job.Currency / YEAR</span>
+                        @if (Model.Job.SalaryMin.HasValue)
+                        {
+                            <span class="salary-estimate-label">Market Range</span>
+                            <div class="salary-range-text">
+                                $@((Model.Job.SalaryMin.Value / 1000).ToString("N0"))K — $@((Model.Job.SalaryMax / 1000)?.ToString("N0"))K
+                            </div>
+                            <span style="font-size: 11px; font-weight: 500; color: rgba(237,232,223,0.4); margin-top: 8px; display: block;">@Model.Job.Currency / YEAR</span>
+                        }
+                        else if (est != null)
+                        {
+                            <span class="salary-estimate-label">Estimated Range</span>
+                            <div class="salary-range-text">
+                                $@((est.EstimatedSalaryMin / 1000).ToString("N0"))K — $@((est.EstimatedSalaryMax / 1000).ToString("N0"))K
+                            </div>
+                            <span style="font-size: 11px; font-weight: 500; color: rgba(237,232,223,0.4); margin-top: 8px; display: block;">@Model.Job.Currency / YEAR</span>
+                            <span style="font-size: 10px; font-weight: 700; color: var(--pink); margin-top: 4px; display: block;">AI Estimate</span>
+                        }
                     </div>
                 </div>
             </div>

@@ -22,16 +22,20 @@ def run():
     logger.info(f"Connecting to database: {DB_PATH}")
     conn = sqlite3.connect(DB_PATH)
     
-    # Load all jobs
-    df = pd.read_sql("SELECT * FROM Jobs", conn)
-    logger.info(f"Loaded {len(df):,} jobs.")
+    # Load all jobs — only those that do NOT already have an estimate
+    # (never recalculate existing backend salary values)
+    df = pd.read_sql("SELECT * FROM Jobs WHERE EstimatedSalaryMin IS NULL", conn)
+    logger.info(f"Loaded {len(df):,} jobs without existing estimates.")
     
-    # Split into those with and without salary
-    # (The calculator handles this, but let's be explicit)
-    df = calculate_estimates(df, df) # Use full set to build stats
+    if df.empty:
+        logger.info("No jobs need estimation — all already have estimates or real salaries.")
+        conn.close()
+        return
+    
+    df = calculate_estimates(df)
     
     est_count = df["IsSalaryEstimated"].sum()
-    logger.info(f"Calculated estimates for {est_count:,} jobs.")
+    logger.info(f"New estimates calculated for {est_count:,} jobs.")
     
     if est_count > 0:
         logger.info("Updating database...")

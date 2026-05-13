@@ -1,7 +1,9 @@
 @model Jobalatica.Models.Entities.Job
+@inject Jobalatica.Services.ISalaryEstimator SalaryEstimator
 @{
     bool isSaved = ViewData["IsSaved"] as bool? ?? false;
     bool isNew = (DateTime.UtcNow - Model.PostedAt).TotalDays < 2;
+    var est = SalaryEstimator.GetEstimate(Model);
 }
 
 <div style="display: grid; grid-template-columns: 1fr 1fr auto; align-items: start; gap: 48px; width: 100%;">
@@ -45,16 +47,12 @@
             @if (Model.SalaryMin.HasValue)
             {
                 <span>$@((Model.SalaryMin.Value / 1000).ToString("N0"))K — @((Model.SalaryMax / 1000)?.ToString("N0"))K</span>
-                <span style="display: block; font-family: var(--sans); font-size: 12px; font-weight: 500; color: rgba(26,22,18,0.45); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px;">USD / Year</span>
+                <span style="display: block; font-family: var(--sans); font-size: 12px; font-weight: 500; color: rgba(26,22,18,0.45); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px;">@Model.Currency / Year</span>
             }
-            else if (Model.IsSalaryEstimated && Model.EstimatedSalaryMin.HasValue)
+            else if (est != null)
             {
-                <span style="color: rgba(26,22,18,0.6);">$@((Model.EstimatedSalaryMin.Value / 1000).ToString("N0"))K — @((Model.EstimatedSalaryMax / 1000)?.ToString("N0"))K*</span>
-                <span style="display: block; font-family: var(--sans); font-size: 10px; font-weight: 700; color: var(--pink); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px;">Market Estimate</span>
-            }
-            else
-            {
-                <span style="opacity: 0.4;">Salary Hidden</span>
+                <span style="color: rgba(26,22,18,0.6);">$@((est.EstimatedSalaryMin / 1000).ToString("N0"))K — @((est.EstimatedSalaryMax / 1000).ToString("N0"))K</span>
+                <span style="display: block; font-family: var(--sans); font-size: 10px; font-weight: 700; color: var(--pink); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px;">AI Estimate</span>
             }
         </div>
         <div style="display: flex; gap: 10px; align-items: center;">
