@@ -15,6 +15,9 @@ namespace Jobalatica.Models.Entities
         public string SourceSite { get; set; } = string.Empty;
         public DateTime PostedAt { get; set; }
         public DateTime ScrapedAt { get; set; }
+        public bool IsSalaryEstimated { get; set; } = false;
+        public decimal? EstimatedSalaryMin { get; set; }
+        public decimal? EstimatedSalaryMax { get; set; }
         public bool IsActive { get; set; } = true;
 
         public ICollection<JobSkill> JobSkills { get; set; } = new List<JobSkill>();

@@ -37,7 +37,8 @@ def read_existing_data() -> dict:
     }
 
     try:
-        jobs_df = pd.read_sql("SELECT Id, Title, Company, Location, SourceUrl FROM Jobs", engine)
+        jobs_df = pd.read_sql("SELECT Id, Title, Company, Location, SourceUrl, SalaryMin, SalaryMax, ExperienceLevel FROM Jobs", engine)
+        result["all_jobs"] = jobs_df.copy()
         result["existing_job_urls"] = set(jobs_df["SourceUrl"].dropna().str.strip())
         result["existing_job_ids"]  = set(jobs_df["Id"])
         result["existing_job_keys"] = set(

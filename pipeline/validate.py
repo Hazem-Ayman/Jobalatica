@@ -49,7 +49,8 @@ def validate_jobs_columns(df: pd.DataFrame) -> pd.DataFrame:
         "Title", "Company", "Location", "Country",
         "SalaryMin", "SalaryMax", "Currency",
         "ExperienceLevel", "SourceUrl", "SourceSite",
-        "PostedAt", "ScrapedAt", "IsActive"
+        "PostedAt", "ScrapedAt", "IsActive",
+        "IsSalaryEstimated", "EstimatedSalaryMin", "EstimatedSalaryMax"
     ]
 
     helper_cols = [c for c in df.columns if c.startswith("_") or

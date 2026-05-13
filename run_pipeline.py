@@ -49,6 +49,7 @@ from load_sqlite import (
 from generate_jobskills import generate_jobskills
 from validate import validate_jobskills_fk, validate_jobs_columns
 from snapshots import generate_demand_snapshots
+from estimate_salaries import calculate_estimates
 from config import VALIDATION_REPORT
 
 
@@ -153,6 +154,12 @@ def run():
         logger.info("All jobs are duplicates — nothing new to insert.")
         _finalize(stats, start_time, logger)
         return
+
+    # ──────────────────────────────────────────────────────────────
+    # STEP 11b — Estimate Salaries
+    # ──────────────────────────────────────────────────────────────
+    logger.info("[STEP 11b] Calculating salary estimates …")
+    df = calculate_estimates(df, db["all_jobs"])
 
     # ──────────────────────────────────────────────────────────────
     # STEP 12 — Upsert canonical skills

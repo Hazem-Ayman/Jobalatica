@@ -47,6 +47,11 @@
                 <span>$@((Model.SalaryMin.Value / 1000).ToString("N0"))K — @((Model.SalaryMax / 1000)?.ToString("N0"))K</span>
                 <span style="display: block; font-family: var(--sans); font-size: 12px; font-weight: 500; color: rgba(26,22,18,0.45); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px;">USD / Year</span>
             }
+            else if (Model.IsSalaryEstimated && Model.EstimatedSalaryMin.HasValue)
+            {
+                <span style="color: rgba(26,22,18,0.6);">$@((Model.EstimatedSalaryMin.Value / 1000).ToString("N0"))K — @((Model.EstimatedSalaryMax / 1000)?.ToString("N0"))K*</span>
+                <span style="display: block; font-family: var(--sans); font-size: 10px; font-weight: 700; color: var(--pink); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 2px;">Market Estimate</span>
+            }
             else
             {
                 <span style="opacity: 0.4;">Salary Hidden</span>
