@@ -14,8 +14,15 @@ try
 
     builder.Services.AddControllersWithViews();
 
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=JobPulse.db";
+    if (connectionString.Contains("Data Source=") && !connectionString.Contains(":memory:") && !Path.IsPathRooted(connectionString.Split('=')[1]))
+    {
+        var dbFile = connectionString.Split('=')[1];
+        connectionString = $"Data Source={Path.Combine(builder.Environment.ContentRootPath, dbFile)}";
+    }
+
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+        options.UseSqlite(connectionString));
 
     builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
         {

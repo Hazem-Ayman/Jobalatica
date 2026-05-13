@@ -89,6 +89,20 @@ namespace Jobalatica.Controllers
             var user = await _userManager.FindByIdAsync(id);
             if (user != null && !string.Equals(user.Email, AdminEmail, StringComparison.OrdinalIgnoreCase))
             {
+                // Delete related data first to avoid FK constraint errors in SQLite
+                var savedJobs = await _context.SavedJobs.Where(sj => sj.UserId == id).ToListAsync();
+                _context.SavedJobs.RemoveRange(savedJobs);
+
+                var userSkills = await _context.UserSkills.Where(us => us.UserId == id).ToListAsync();
+                _context.UserSkills.RemoveRange(userSkills);
+
+                var salaryReports = await _context.SalaryReports.Where(sr => sr.UserId == id).ToListAsync();
+                foreach (var report in salaryReports)
+                {
+                    report.UserId = null;
+                }
+
+                await _context.SaveChangesAsync();
                 await _userManager.DeleteAsync(user);
             }
 

@@ -112,7 +112,14 @@
 
                 <a asp-controller="Profile" asp-action="Index" class="user-pill">
                     <div class="user-circle">
-                        <span>@(user?.DisplayName?[0] ?? '?')</span>
+                        @if (!string.IsNullOrEmpty(user?.ProfilePictureUrl))
+                        {
+                            <img src="@user.ProfilePictureUrl" alt="Profile" />
+                        }
+                        else
+                        {
+                            <span>@(user?.DisplayName?[0] ?? '?')</span>
+                        }
                     </div>
                     <span class="hidden md:inline">Dashboard</span>
                 </a>

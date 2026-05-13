@@ -13,13 +13,16 @@ namespace Jobalatica.Controllers
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _context;
+        private readonly IWebHostEnvironment _hostEnvironment;
 
         public ProfileController(
             UserManager<ApplicationUser> userManager, 
-            ApplicationDbContext context)
+            ApplicationDbContext context,
+            IWebHostEnvironment hostEnvironment)
         {
             _userManager = userManager;
             _context = context;
+            _hostEnvironment = hostEnvironment;
         }
 
         [HttpGet]
@@ -40,6 +43,7 @@ namespace Jobalatica.Controllers
                 DisplayName = user.DisplayName,
                 JobTitle = user.JobTitle,
                 CompanyName = user.CompanyName,
+                ProfilePictureUrl = user.ProfilePictureUrl,
                 AllSkills = allSkills,
                 UserSkillIds = user.UserSkills.Select(us => us.SkillId).ToList(),
                 SavedJobs = user.SavedJobs.ToList()
@@ -60,6 +64,25 @@ namespace Jobalatica.Controllers
             {
                 user.DisplayName = model.DisplayName;
                 user.JobTitle = model.JobTitle ?? user.JobTitle;
+
+                if (model.ProfilePicture != null)
+                {
+                    // Ensure we use the correct physical path even if launched from different working directories
+                    string webRootPath = _hostEnvironment.WebRootPath ?? Path.Combine(_hostEnvironment.ContentRootPath, "wwwroot");
+                    string uploadsFolder = Path.Combine(webRootPath, "uploads", "profiles");
+                    
+                    if (!Directory.Exists(uploadsFolder)) Directory.CreateDirectory(uploadsFolder);
+
+                    string uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(model.ProfilePicture.FileName);
+                    string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                    using (var fileStream = new FileStream(filePath, FileMode.Create))
+                    {
+                        await model.ProfilePicture.CopyToAsync(fileStream);
+                    }
+
+                    user.ProfilePictureUrl = "/uploads/profiles/" + uniqueFileName;
+                }
 
                 var result = await _userManager.UpdateAsync(user);
                 if (result.Succeeded)

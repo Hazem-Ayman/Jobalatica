@@ -13,6 +13,7 @@ namespace Jobalatica.Models.Entities
         public bool HasSeenSalaryPrompt { get; set; }
         public string TechInterests { get; set; } = string.Empty;
         public string ProjectInterests { get; set; } = string.Empty;
+        public string? ProfilePictureUrl { get; set; }
 
         public ICollection<UserSkill> UserSkills { get; set; } = new List<UserSkill>();
         public ICollection<SalaryReport> SalaryReports { get; set; } = new List<SalaryReport>();
