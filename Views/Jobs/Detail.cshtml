@@ -158,6 +158,12 @@
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="@(Model.IsSaved ? "currentColor" : "none")" stroke="currentColor" stroke-width="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
                             @(Model.IsSaved ? "Saved to Matrix" : "Save Signal")
                         </button>
+
+                        <a asp-controller="Rankings" asp-action="RoleDetail" asp-route-title="@Model.Job.Title" 
+                           class="btn-brutal btn-brutal-secondary" 
+                           style="background: var(--lavender); border-color: var(--ink); color: var(--ink); text-decoration: none;">
+                            View Market Intelligence →
+                        </a>
                     }
                 </div>
             </div>
@@ -176,15 +182,73 @@
             <div>
                 <div class="section-label">Market Velocity</div>
                 <div style="height: 12px; background: var(--parchment-2); border: 1px solid var(--ink); position: relative; margin-bottom: 12px;">
-                    <div style="position: absolute; top: 0; left: 0; bottom: 0; background: var(--ink); width: @(Math.Min(Model.Job.JobSkills.Count * 15, 100))%"></div>
+                    <div style="position: absolute; top: 0; left: 0; bottom: 0; background: var(--ink); width: @Model.DemandScore%"></div>
                 </div>
-                <div style="font-size: 11px; font-weight: 500; color: rgba(26,22,18,0.5);">Demand Score: @(Math.Min(Model.Job.JobSkills.Count * 15, 100))/100</div>
+                <div style="font-size: 11px; font-weight: 500; color: rgba(26,22,18,0.5);">Demand Score: @Model.DemandScore/100</div>
             </div>
         </div>
     </div>
 
     <div style="display: grid; grid-template-columns: 1fr 340px; gap: 40px;">
         <div class="space-y-10">
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <!-- Skill Gap Analysis -->
+                <div class="card-brutal" style="background: var(--ink); color: var(--parchment);">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;">
+                        <h2 style="font-family: var(--serif); font-size: 28px; font-weight: 900; color: var(--parchment);">Signal Intelligence</h2>
+                        <div style="background: var(--pink); color: var(--ink); padding: 8px 16px; font-weight: 900; font-size: 24px; border: 2px solid var(--parchment);">
+                            @Model.MatchPercentage%
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 32px;">
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(237,232,223,0.5); margin-bottom: 8px;">
+                            <span>Match Velocity</span>
+                            <span>@(Model.MatchPercentage >= 70 ? "High Alignment" : (Model.MatchPercentage >= 40 ? "Partial Match" : "Significant Gap"))</span>
+                        </div>
+                        <div style="height: 16px; background: rgba(237,232,223,0.1); border: 1px solid var(--parchment); position: relative;">
+                            <div style="position: absolute; top: 0; left: 0; bottom: 0; background: var(--pink); width: @Model.MatchPercentage%; transition: width 1s ease-out;"></div>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px;">
+                        <div>
+                            <div class="section-label" style="color: var(--green); margin-bottom: 12px;">Matching Skills</div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                @if (Model.MatchingSkills.Any())
+                                {
+                                    @foreach (var s in Model.MatchingSkills)
+                                    {
+                                        <span style="font-size: 12px; font-weight: 700; color: var(--ink); background: var(--green); padding: 4px 10px; border: 1px solid var(--parchment);">@s.Name</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span style="font-size: 11px; color: rgba(237,232,223,0.3); font-style: italic;">No direct skill overlap detected.</span>
+                                }
+                            </div>
+                        </div>
+                        <div>
+                            <div class="section-label" style="color: var(--pink); margin-bottom: 12px;">Skills to Learn</div>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                @if (Model.MissingSkills.Any())
+                                {
+                                    @foreach (var s in Model.MissingSkills)
+                                    {
+                                        <span style="font-size: 12px; font-weight: 700; color: var(--parchment); background: rgba(242, 112, 138, 0.2); padding: 4px 10px; border: 1px solid var(--pink);">@s.Name</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span style="font-size: 11px; color: var(--green); font-weight: 700;">You meet all technical requirements!</span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
             <!-- About Section -->
             <div class="card-brutal">
                 <h2 style="font-family: var(--serif); font-size: 32px; font-weight: 900; margin-bottom: 24px;">About This Role</h2>
@@ -203,6 +267,22 @@
 
             <!-- Salary Intelligence -->
             <div class="card-brutal">
+                @{
+                    decimal? displayMin = Model.Job.SalaryMin;
+                    decimal? displayMax = Model.Job.SalaryMax;
+                    string currency = Model.Job.Currency;
+                    
+                    // Calculate a dynamic range for the chart axis
+                    decimal axisMin = (displayMin ?? 0) * 0.6m;
+                    decimal axisMax = (displayMax ?? 100000) * 1.4m;
+                    decimal axisMid = (axisMin + axisMax) / 2;
+
+                    // Calculate positions for the markers (0% to 100%)
+                    double varianceLeft = displayMin.HasValue ? (double)((displayMin.Value - axisMin) / (axisMax - axisMin) * 100) : 0;
+                    double varianceWidth = (displayMin.HasValue && displayMax.HasValue) ? (double)((displayMax.Value - displayMin.Value) / (axisMax - axisMin) * 100) : 0;
+                    double markerPos = (varianceLeft + (varianceWidth / 2));
+                }
+
                 <h2 style="font-family: var(--serif); font-size: 32px; font-weight: 900; margin-bottom: 32px;">Value Intelligence</h2>
                 <div style="display: flex; flex-direction: column; md:flex-direction: row; gap: 40px; align-items: stretch;">
                     <div style="flex: 1;">
@@ -211,10 +291,10 @@
                             <span>Posted Variance</span>
                         </div>
                         <div style="height: 60px; background: var(--parchment-2); border: var(--border); position: relative; display: flex; align-items: center; justify-content: center;">
-                            @if (Model.Job.SalaryMin.HasValue && Model.Job.SalaryMax.HasValue)
+                            @if (displayMin.HasValue && displayMax.HasValue)
                             {
-                                <div style="position: absolute; top: 0; bottom: 0; left: 30%; width: 40%; background: var(--lavender); opacity: 0.4; border-left: 1px solid var(--ink); border-right: 1px solid var(--ink);"></div>
-                                <div style="width: 12px; height: 12px; background: var(--ink); position: absolute; left: 45%;"></div>
+                                <div style="position: absolute; top: 0; bottom: 0; left: @(varianceLeft.ToString("F1"))%; width: @(varianceWidth.ToString("F1"))%; background: var(--lavender); opacity: 0.4; border-left: 1px solid var(--ink); border-right: 1px solid var(--ink);"></div>
+                                <div style="width: 12px; height: 12px; background: var(--ink); position: absolute; left: @(markerPos.ToString("F1"))%; transform: translateX(-50%);"></div>
                             }
                             else
                             {
@@ -222,9 +302,9 @@
                             }
                         </div>
                         <div style="display: flex; justify-content: space-between; font-size: 10px; font-weight: 600; color: rgba(26,22,18,0.3); margin-top: 12px;">
-                            <span>$40K</span>
-                            <span>$80K</span>
-                            <span>$120K</span>
+                            <span>@(axisMin > 1000 ? $"${(axisMin/1000):N0}K" : $"${axisMin:N0}")</span>
+                            <span>@(axisMid > 1000 ? $"${(axisMid/1000):N0}K" : $"${axisMid:N0}")</span>
+                            <span>@(axisMax > 1000 ? $"${(axisMax/1000):N0}K" : $"${axisMax:N0}")</span>
                         </div>
                     </div>
                     

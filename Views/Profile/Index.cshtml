@@ -125,9 +125,22 @@
                         <input asp-for="JobTitle" type="text" placeholder="e.g. Lead Systems Architect" />
                     </div>
                     <div class="field">
-                        <label asp-for="ProfilePicture">Update Profile Picture</label>
-                        <input asp-for="ProfilePicture" type="file" accept="image/*" />
+                        <label>Update Profile Picture</label>
+                        <div class="custom-file-upload">
+                            <input asp-for="ProfilePicture" type="file" accept="image/*" id="profile-upload" onchange="updateFileName(this)" style="display: none;" />
+                            <label for="profile-upload" class="btn btn-dark" style="background: var(--ink); color: var(--parchment); margin-bottom: 0; cursor: pointer; display: inline-flex; align-items: center; justify-content: space-between; min-width: 300px;">
+                                <span id="file-name">Browse for Image...</span>
+                                <span>→</span>
+                            </label>
+                        </div>
                     </div>
+
+                    <script>
+                        function updateFileName(input) {
+                            var fileName = input.files[0] ? input.files[0].name : "Browse for Image...";
+                            document.getElementById('file-name').innerText = fileName;
+                        }
+                    </script>
                 </div>
             </div>
 

@@ -31,7 +31,7 @@ namespace Jobalatica.Controllers
             _logger = logger;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index() // Displays landing page data
         {
             // Admin always goes to Command Center
             if (User.Identity?.IsAuthenticated == true &&
@@ -91,13 +91,13 @@ namespace Jobalatica.Controllers
             return View(vm);
         }
 
-        public IActionResult Privacy()
+        public IActionResult Privacy() // Shows privacy policy page
         {
             return View();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        public IActionResult Error() // Handles error display logic
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }

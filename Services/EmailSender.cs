@@ -44,8 +44,8 @@ public class EmailSender : IEmailSender
 
             using var client = new SmtpClient();
             
-            _logger.LogInformation("Connecting to {Host}:{Port} using {Options}", _settings.SmtpHost, _settings.SmtpPort, SecureSocketOptions.StartTls);
-            await client.ConnectAsync(_settings.SmtpHost, _settings.SmtpPort, SecureSocketOptions.StartTls);
+            _logger.LogInformation("Connecting to {Host}:{Port} using Auto-detected SecureSocketOptions", _settings.SmtpHost, _settings.SmtpPort);
+            await client.ConnectAsync(_settings.SmtpHost, _settings.SmtpPort, SecureSocketOptions.Auto);
             
             _logger.LogInformation("Authenticating as {Login}", _settings.Login);
             await client.AuthenticateAsync(_settings.Login, _settings.Password);

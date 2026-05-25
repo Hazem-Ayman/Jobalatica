@@ -44,6 +44,37 @@
     <div class="page-label"><span class="page-label-dot"></span>Market Intelligence</div>
     <h1 class="page-title"><em>Role</em> Rankings</h1>
     <p class="page-sub">Analysis based on the last 30 days of market activity across 12,400+ verified postings.</p>
+    
+    <div style="width: 100%; max-width: 600px; margin-bottom: 48px; position: relative;">
+        <form asp-action="Search" method="get" style="display: flex; gap: 0; border: var(--border); box-shadow: var(--shadow-sm); background: var(--parchment);">
+            <input type="text" name="title" id="roleSearchInput" list="job-suggestions" autocomplete="off"
+                   placeholder="Search any role for intelligence (e.g. 'Data Analyst')" 
+                   style="flex: 1; padding: 20px; border: none; background: transparent; font-family: var(--sans); font-size: 16px; outline: none;" required />
+            <datalist id="job-suggestions"></datalist>
+            <button type="submit" class="btn" style="border: none; border-left: var(--border); background: var(--ink); color: var(--parchment); padding: 0 32px; border-radius: 0; font-weight: 900;">
+                ANALYZE →
+            </button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('roleSearchInput').addEventListener('input', async function(e) {
+            const val = e.target.value;
+            if (val.length < 2) return;
+
+            const response = await fetch(`/Rankings/Autocomplete?term=${encodeURIComponent(val)}`);
+            const suggestions = await response.json();
+            
+            const datalist = document.getElementById('job-suggestions');
+            datalist.innerHTML = '';
+            suggestions.forEach(s => {
+                const option = document.createElement('option');
+                option.value = s;
+                datalist.appendChild(option);
+            });
+        });
+    </script>
+
     <div class="page-header-right">
         <div style="display: flex; border: var(--border); box-shadow: var(--shadow-sm);">
             <button class="btn" style="border: none; box-shadow: none; background: var(--ink); color: var(--parchment); border-radius: 0;">Monthly Analysis</button>

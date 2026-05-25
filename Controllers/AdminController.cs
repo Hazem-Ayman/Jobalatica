@@ -30,7 +30,7 @@ namespace Jobalatica.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index() // Loads platform overview stats
         {
             if (!IsAdmin()) return RedirectToAction("Index", "Home");
 
@@ -82,7 +82,7 @@ namespace Jobalatica.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteUser(string id)
+        public async Task<IActionResult> DeleteUser(string id) // Permanently removes a user
         {
             if (!IsAdmin()) return RedirectToAction("Index", "Home");
 
@@ -111,7 +111,7 @@ namespace Jobalatica.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteJob(long id)
+        public async Task<IActionResult> DeleteJob(long id) // Removes a job posting
         {
             if (!IsAdmin()) return RedirectToAction("Index", "Home");
 
@@ -127,7 +127,7 @@ namespace Jobalatica.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteSalaryReport(int id)
+        public async Task<IActionResult> DeleteSalaryReport(int id) // Removes a salary entry
         {
             if (!IsAdmin()) return RedirectToAction("Index", "Home");
 

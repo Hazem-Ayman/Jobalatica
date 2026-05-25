@@ -19,7 +19,7 @@ namespace Jobalatica.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Submit()
+        public async Task<IActionResult> Submit() // Shows salary contribution form
         {
             var model = new SalarySubmitViewModel();
             if (User.Identity?.IsAuthenticated == true)
@@ -51,7 +51,7 @@ namespace Jobalatica.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Submit(SalarySubmitViewModel model)
+        public async Task<IActionResult> Submit(SalarySubmitViewModel model) // Processes new salary report
         {
             if (ModelState.IsValid)
             {

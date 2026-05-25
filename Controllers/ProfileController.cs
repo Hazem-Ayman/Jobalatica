@@ -26,7 +26,7 @@ namespace Jobalatica.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index() // Displays user dashboard overview
         {
             var user = await _userManager.Users
                 .Include(u => u.UserSkills)
@@ -54,7 +54,7 @@ namespace Jobalatica.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> SaveProfile(ProfileViewModel model)
+        public async Task<IActionResult> SaveProfile(ProfileViewModel model) // Updates user profile information
         {
             var userId = _userManager.GetUserId(User);
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
@@ -117,7 +117,7 @@ namespace Jobalatica.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> SavedJobs()
+        public async Task<IActionResult> SavedJobs() // Displays user's saved jobs
         {
             var userId = _userManager.GetUserId(User);
             var savedJobs = await _context.SavedJobs

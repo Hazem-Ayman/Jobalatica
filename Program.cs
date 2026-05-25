@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 try
 {
     var builder = WebApplication.CreateBuilder(args);
+    builder.Configuration.AddJsonFile("appsettings.Development.local.json", optional: true, reloadOnChange: true);
 
     builder.Logging.ClearProviders();
     builder.Logging.AddConsole();
@@ -44,20 +45,22 @@ try
 
     var app = builder.Build();
     var seedOnly = args.Contains("--seed-only");
+    var forceSeed = args.Contains("--force-seed");
 
     using (var scope = app.Services.CreateScope())
     {
         var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        await DbSeeder.SeedAsync(db);
+        await DbSeeder.SeedAsync(db, forceSeed);
 
-        if (seedOnly)
+        if (seedOnly || forceSeed)
         {
             var skillCount = await db.Skills.CountAsync();
             var jobCount = await db.Jobs.CountAsync();
             var jobSkillCount = await db.JobSkills.CountAsync();
             var snapshotCount = await db.DemandSnapshots.CountAsync();
+            var reportCount = await db.SalaryReports.CountAsync();
 
-            Console.WriteLine($"Seed check: Skills={skillCount}, Jobs={jobCount}, JobSkills={jobSkillCount}, DemandSnapshots={snapshotCount}");
+            Console.WriteLine($"[SEED REPORT] Skills: {skillCount} | Jobs: {jobCount} | JobSkills: {jobSkillCount} | Reports: {reportCount} | Snapshots: {snapshotCount}");
         }
     }
 

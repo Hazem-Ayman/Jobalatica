@@ -78,9 +78,9 @@
         <div class="card-brutal card-dark">
             <span class="stat-label">Demand Score</span>
             <div style="display: flex; align-items: center; gap: 16px;">
-                <span class="stat-value">88<small style="font-size: 0.5em; opacity: 0.4;">/100</small></span>
+                <span class="stat-value">@Model.DemandScore<small style="font-size: 0.5em; opacity: 0.4;">/100</small></span>
                 <div style="flex: 1; height: 8px; background: rgba(237,232,223,0.1); border: 1px solid rgba(237,232,223,0.2);">
-                    <div style="height: 100%; background: var(--pink); width: 88%;"></div>
+                    <div style="height: 100%; background: var(--pink); width: @Model.DemandScore%;"></div>
                 </div>
             </div>
         </div>
@@ -89,19 +89,58 @@
     <div style="display: grid; grid-template-columns: 1fr 340px; gap: 48px; margin-bottom: 64px;">
         <!-- Charts Column -->
         <div>
-            <div class="card-brutal" style="margin-bottom: 48px;">
-                <h2 class="section-title">Hiring Velocity Trend</h2>
-                <div style="height: 340px;">
-                    @if (Model.Trend.Any())
-                    {
-                        <canvas id="demandTrendChart"></canvas>
-                    }
-                    else
-                    {
-                        <div style="height: 100%; display: grid; place-items: center; border: 2px dashed rgba(26,22,18,0.1); font-style: italic; color: rgba(26,22,18,0.3);">
-                            Gathering historical signals...
+            <div class="card-brutal" style="margin-bottom: 48px; background: var(--parchment-2);">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px;">
+                    <div>
+                        <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(26,22,18,0.4); margin-bottom: 8px;">Market Intelligence</div>
+                        <h2 class="section-title" style="margin: 0;">Market Vitality Index</h2>
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-family: var(--serif); font-size: 48px; font-weight: 900; line-height: 1; color: @Model.Health.StatusColor;">@Model.Health.Score<small style="font-size: 16px; opacity: 0.4;">/100</small></div>
+                        <div style="font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em; color: @Model.Health.StatusColor;">Status: @Model.Health.Status</div>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 32px;">
+                    <div class="vital-stat">
+                        <div style="font-size: 11px; font-weight: 700; color: rgba(26,22,18,0.5); margin-bottom: 12px; display: flex; justify-content: space-between;">
+                            <span>Employer Diversity</span>
+                            <span>@Model.Health.DiversityScore%</span>
                         </div>
-                    }
+                        <div style="height: 6px; background: rgba(26,22,18,0.05); border: 1px solid rgba(26,22,18,0.1);">
+                            <div style="height: 100%; background: var(--ink); width: @Model.Health.DiversityScore%;"></div>
+                        </div>
+                    </div>
+                    <div class="vital-stat">
+                        <div style="font-size: 11px; font-weight: 700; color: rgba(26,22,18,0.5); margin-bottom: 12px; display: flex; justify-content: space-between;">
+                            <span>Entry Pipeline</span>
+                            <span>@Model.Health.PipelineScore%</span>
+                        </div>
+                        <div style="height: 6px; background: rgba(26,22,18,0.05); border: 1px solid rgba(26,22,18,0.1);">
+                            <div style="height: 100%; background: var(--ink); width: @Model.Health.PipelineScore%;"></div>
+                        </div>
+                    </div>
+                    <div class="vital-stat">
+                        <div style="font-size: 11px; font-weight: 700; color: rgba(26,22,18,0.5); margin-bottom: 12px; display: flex; justify-content: space-between;">
+                            <span>Salary Value</span>
+                            <span>@Model.Health.ValueScore%</span>
+                        </div>
+                        <div style="height: 6px; background: rgba(26,22,18,0.05); border: 1px solid rgba(26,22,18,0.1);">
+                            <div style="height: 100%; background: var(--ink); width: @Model.Health.ValueScore%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="padding: 20px; background: rgba(26,22,18,0.03); border: 1px dashed rgba(26,22,18,0.1); border-radius: 4px;">
+                    <div style="display: flex; gap: 12px;">
+                        <div style="width: 24px; height: 24px; border: 2px solid @Model.Health.StatusColor; display: grid; place-items: center; border-radius: 50%; flex-shrink: 0;">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="@Model.Health.StatusColor" stroke-width="3"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                        </div>
+                        <div>
+                            <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: rgba(26,22,18,0.4); margin-bottom: 2px;">Intelligence Verdict</div>
+                            <div style="font-size: 13px; font-weight: 500; color: var(--ink);">@Model.Health.Recommendation</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -119,22 +158,27 @@
 
         <!-- Sidebar -->
         <div>
-            <div class="card-brutal" style="padding: 24px;">
-                <h2 style="font-family: var(--serif); font-size: 22px; font-weight: 900; margin-bottom: 24px;">Skill Priority</h2>
-                <div style="height: 300px;">
-                    <canvas id="roleSkillsChart"></canvas>
-                </div>
-            </div>
-
-            <div class="card-brutal" style="padding: 32px; min-height: 400px;">
+            <div class="card-brutal" style="padding: 32px; min-height: 400px; margin-bottom: 32px;">
                 <h2 style="font-family: var(--serif); font-size: 22px; font-weight: 900; margin-bottom: 24px;">Salary by Experience</h2>
                 
                 <div style="position: relative;">
                     <div class="salary-breakdown @(!Model.HasContributedSalary ? "blur-md" : "")">
-                        <div class="salary-row"><span>Entry Level</span><span>$45K - $60K</span></div>
-                        <div class="salary-row active"><span>Mid Level</span><span>$70K - $95K</span></div>
-                        <div class="salary-row"><span>Senior Level</span><span>$110K - $150K</span></div>
-                        <div class="salary-row"><span>Lead / Arch</span><span>$160K+</span></div>
+                        @foreach (var entry in Model.SalaryByExperience)
+                        {
+                            <div class="salary-row @(entry.Level == Model.CurrentLevel ? "active" : "")">
+                                <span>@entry.Level Level</span>
+                                <span>
+                                    @if (entry.Min > 0)
+                                    {
+                                        <text>$@((entry.Min/1000).ToString("N0"))K - $@((entry.Max/1000).ToString("N0"))K</text>
+                                    }
+                                    else
+                                    {
+                                        <text>N/A</text>
+                                    }
+                                </span>
+                            </div>
+                        }
                     </div>
 
                     @if (!Model.HasContributedSalary)
@@ -169,9 +213,13 @@
                             </tr>
                         </thead>
                         <tbody style="font-family: var(--serif); font-size: 18px; font-weight: 700;">
-                            <tr style="border-bottom: 1px solid rgba(26,22,18,0.05);"><td style="padding: 16px 0;">Dubai, UAE</td><td style="padding: 16px 0; text-align: right;">$95,400</td></tr>
-                            <tr style="border-bottom: 1px solid rgba(26,22,18,0.05);"><td style="padding: 16px 0;">Riyadh, SA</td><td style="padding: 16px 0; text-align: right;">$82,000</td></tr>
-                            <tr style="border-bottom: 1px solid rgba(26,22,18,0.05);"><td style="padding: 16px 0;">Cairo, EG</td><td style="padding: 16px 0; text-align: right;">$32,000</td></tr>
+                            @foreach (var loc in new[] { "Dubai, UAE", "Riyadh, SA", "Cairo, EG", "London, UK" })
+                            {
+                                <tr style="border-bottom: 1px solid rgba(26,22,18,0.05);">
+                                    <td style="padding: 16px 0;">@loc</td>
+                                    <td style="padding: 16px 0; text-align: right;">$@((Model.AvgSalaryMax * 0.9m / 1000).ToString("N0"))K</td>
+                                </tr>
+                            }
                         </tbody>
                     </table>
                 </div>
@@ -187,11 +235,12 @@
         <div>
             <h2 class="section-title">Top Companies Hiring</h2>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-                @foreach (var company in new[] { "Vodafone", "Valeo", "Talabat", "Instabug", "Careem", "Google" })
+                @foreach (var company in Model.TopCompanies)
                 {
                     <div class="company-pill">
-                        <div class="company-icon">@company[0]</div>
-                        <span>@company</span>
+                        <div class="company-icon">@company.Name[0]</div>
+                        <span>@company.Name</span>
+                        <small style="margin-left: auto; opacity: 0.4;">@company.Count</small>
                     </div>
                 }
             </div>
@@ -201,26 +250,21 @@
 
 @section Scripts {
     <script>
-        @if (Model.Trend.Any())
+        @if (Model.SkillDistribution.Any())
         {
             <text>
-            const trendCtx = document.getElementById('demandTrendChart').getContext('2d');
-            new Chart(trendCtx, {
-                type: 'line',
+            const distCtx = document.getElementById('skillDistChart').getContext('2d');
+            new Chart(distCtx, {
+                type: 'bar',
                 data: {
-                    labels: @Html.Raw(JsonSerializer.Serialize(Model.Trend.Select(t => t.SnapshotDate.ToString("MM.dd")))),
+                    labels: @Html.Raw(JsonSerializer.Serialize(Model.SkillDistribution.Select(s => s.SkillName))),
                     datasets: [{
-                        data: @Html.Raw(JsonSerializer.Serialize(Model.Trend.Select(t => t.PostingCount))),
-                        borderColor: '#1A1612',
-                        backgroundColor: 'rgba(242, 112, 138, 0.1)',
-                        fill: true,
-                        tension: 0.4,
-                        borderWidth: 3,
-                        pointRadius: 0,
-                        pointHoverRadius: 6,
-                        pointHoverBackgroundColor: '#F2708A',
-                        pointHoverBorderColor: '#1A1612',
-                        pointHoverBorderWidth: 2
+                        label: '% of Jobs',
+                        data: @Html.Raw(JsonSerializer.Serialize(Model.SkillDistribution.Select(s => s.Percentage))),
+                        backgroundColor: [
+                            '#F2708A', '#1A1612', '#F2708A', '#1A1612', '#F2708A', '#1A1612'
+                        ],
+                        borderWidth: 0
                     }]
                 },
                 options: {
@@ -229,13 +273,18 @@
                     plugins: { legend: { display: false } },
                     scales: {
                         y: { 
-                            beginAtZero: false, 
+                            beginAtZero: true, 
+                            max: 100,
                             grid: { color: 'rgba(26,22,18,0.05)', drawBorder: false },
-                            ticks: { font: { family: 'DM Sans', size: 10 }, color: 'rgba(26,22,18,0.4)' }
+                            ticks: { 
+                                callback: function(value) { return value + "%"; },
+                                font: { family: 'DM Sans', size: 10 }, 
+                                color: 'rgba(26,22,18,0.4)' 
+                            }
                         },
                         x: { 
                             grid: { display: false },
-                            ticks: { font: { family: 'DM Sans', size: 10 }, color: 'rgba(26,22,18,0.4)' }
+                            ticks: { font: { family: 'DM Sans', size: 11, weight: 'bold' }, color: '#1A1612' }
                         }
                     }
                 }
@@ -243,32 +292,6 @@
             </text>
         }
 
-        const skillsCtx = document.getElementById('roleSkillsChart').getContext('2d');
-        new Chart(skillsCtx, {
-            type: 'bar',
-            data: {
-                labels: @Html.Raw(JsonSerializer.Serialize(Model.CommonSkills.Select(s => s.Name))),
-                datasets: [{
-                    data: [95, 88, 76, 65, 54, 42, 38, 25],
-                    backgroundColor: '#1A1612',
-                    hoverBackgroundColor: '#F2708A',
-                    borderRadius: 0,
-                    barThickness: 20
-                }]
-            },
-            options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { display: false, beginAtZero: true },
-                    y: { 
-                        grid: { display: false },
-                        ticks: { font: { family: 'DM Sans', size: 11, weight: 'bold' }, color: '#1A1612' }
-                    }
-                }
-            }
-        });
+        // Skill Priority chart removed.
     </script>
 }

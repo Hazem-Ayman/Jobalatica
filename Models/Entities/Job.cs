@@ -1,18 +1,44 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Jobalatica.Models.Entities
 {
     public class Job
     {
+        [Key]
         public long Id { get; set; }
+
+        [Required]
+        [StringLength(200)]
         public string Title { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(100)]
         public string Company { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(100)]
         public string Location { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(50)]
         public string Country { get; set; } = string.Empty;
+
         public decimal? SalaryMin { get; set; }
         public decimal? SalaryMax { get; set; }
+
+        [StringLength(10)]
         public string Currency { get; set; } = "USD";
+
+        [StringLength(50)]
         public string ExperienceLevel { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(500)]
         public string SourceUrl { get; set; } = string.Empty;
+
+        [StringLength(50)]
         public string SourceSite { get; set; } = string.Empty;
+
         public DateTime PostedAt { get; set; }
         public DateTime ScrapedAt { get; set; }
         public bool IsActive { get; set; } = true;

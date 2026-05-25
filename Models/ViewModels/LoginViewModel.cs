@@ -6,13 +6,13 @@ namespace Jobalatica.Models.ViewModels
     {
         [Required]
         [EmailAddress]
-        public string Email { get; set; } = string.Empty;
+        public string Email { get; set; } = string.Empty; // User's account email address
 
         [Required]
         [DataType(DataType.Password)]
-        public string Password { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty; // Private account access code
 
         [Display(Name = "Remember me?")]
-        public bool RememberMe { get; set; }
+        public bool RememberMe { get; set; } // Keep user session active
     }
 }

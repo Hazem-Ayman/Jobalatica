@@ -27,7 +27,7 @@ namespace Jobalatica.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Register()
+        public async Task<IActionResult> Register() // Shows the registration form
         {
             if (User.Identity?.IsAuthenticated == true) return RedirectToAction("Index", "Home");
             var model = new RegisterViewModel
@@ -38,7 +38,7 @@ namespace Jobalatica.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(RegisterViewModel model)
+        public async Task<IActionResult> Register(RegisterViewModel model) // Handles user account creation
         {
             if (ModelState.IsValid)
             {
@@ -107,13 +107,13 @@ namespace Jobalatica.Controllers
         }
 
         [HttpGet]
-        public IActionResult RegisterSuccess()
+        public IActionResult RegisterSuccess() // Shows registration success message
         {
             return View();
         }
 
         [HttpGet]
-        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        public async Task<IActionResult> ConfirmEmail(string userId, string token) // Validates email confirmation link
         {
             if (userId == null || token == null)
                 return RedirectToAction("Index", "Home");
@@ -136,14 +136,14 @@ namespace Jobalatica.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login()
+        public IActionResult Login() // Shows the login form
         {
             if (User.Identity?.IsAuthenticated == true) return RedirectToAction("Index", "Home");
             return View(new LoginViewModel());
         }
 
         [HttpPost]
-        public async Task<IActionResult> Login(LoginViewModel model)
+        public async Task<IActionResult> Login(LoginViewModel model) // Authenticates user login credentials
         {
             if (ModelState.IsValid)
             {
@@ -165,14 +165,14 @@ namespace Jobalatica.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Logout()
+        public async Task<IActionResult> Logout() // Signs out current user
         {
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]
-        public async Task<IActionResult> MarkSalaryPromptAsSeen()
+        public async Task<IActionResult> MarkSalaryPromptAsSeen() // Tracks salary popup status
         {
             if (User.Identity?.IsAuthenticated == true)
             {
