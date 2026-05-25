@@ -50,7 +50,7 @@ Jobalatica is a revolutionary job marketplace designed to bring **transparency t
 
 Your first encounter with Jobalatica sets the tone. The landing page welcomes you with a clean, intuitive design that immediately communicates the platform's core mission: helping professionals find better opportunities with transparent salary information.
 
-![Jobalatica Homepage 1](https://github.com/Hazem-Ayman/Jobalatica/raw/main/docs/images/01-home-page-1.png)
+![Jobalatica Homepage 1](docs/images/01-home-page-1.png)
 
 **Key Highlights:**
 - 🎨 Sleek, modern interface
@@ -64,7 +64,7 @@ Your first encounter with Jobalatica sets the tone. The landing page welcomes yo
 
 As you scroll further, you'll find comprehensive information about what makes Jobalatica unique. This section highlights our community-driven approach and demonstrates how professionals like you are leveraging our platform to make better career decisions.
 
-![Jobalatica Homepage 2](https://github.com/Hazem-Ayman/Jobalatica/raw/main/docs/images/02-home-page-2.png)
+![Jobalatica Homepage 2](docs/images/02-home-page-2.png)
 
 **Discover:**
 - 🌍 Global industry coverage and opportunities
@@ -78,7 +78,7 @@ As you scroll further, you'll find comprehensive information about what makes Jo
 
 Ready to get started? Our streamlined registration process gets you up and running in minutes. Secure your account, customize your profile, and begin your journey toward better career decisions.
 
-![Sign Up Page](https://github.com/Hazem-Ayman/Jobalatica/raw/main/docs/images/03-signup-page.png)
+![Sign Up Page](docs/images/03-signup-page.png)
 
 **Setup Process Includes:**
 - ✏️ Simple account creation
@@ -92,7 +92,7 @@ Ready to get started? Our streamlined registration process gets you up and runni
 
 Browse our extensive job marketplace with powerful filtering capabilities. Find positions across industries, experience levels, and locations. Each listing is enriched with real salary data submitted by professionals in those roles.
 
-![Jobs Page](https://github.com/Hazem-Ayman/Jobalatica/raw/main/docs/images/04-jobs-page.png)
+![Jobs Page](docs/images/04-jobs-page.png)
 
 **Search & Filter By:**
 - 🔍 Job title, company, or industry
@@ -107,7 +107,7 @@ Browse our extensive job marketplace with powerful filtering capabilities. Find 
 
 Click on any job to uncover detailed information including actual salary ranges, compensation packages, and company insights. This transparent approach empowers you to negotiate confidently and make informed career moves.
 
-![Specific Job 1](https://github.com/Hazem-Ayman/Jobalatica/raw/main/docs/images/05-specific-job-1.png)
+![Specific Job 1](docs/images/05-specific-job-1.png)
 
 **Information Provided:**
 - 💰 Salary range with historical trends
@@ -124,7 +124,7 @@ Click on any job to uncover detailed information including actual salary ranges,
 
 Every job listing provides comprehensive comparison tools. Stack opportunities side-by-side, analyze salary progression, and understand how different roles compare within your industry. Make your career decisions with confidence backed by real data.
 
-![Specific Job 2](https://github.com/Hazem-Ayman/Jobalatica/raw/main/docs/images/06-specific-job-2.png)
+![Specific Job 2](docs/images/06-specific-job-2.png)
 
 **Comparison Features:**
 - 📊 Visual salary analysis
@@ -140,7 +140,7 @@ Every job listing provides comprehensive comparison tools. Stack opportunities s
 
 Help others make informed decisions by sharing your salary experience. Our anonymous submission process ensures your privacy while building a comprehensive database that benefits the entire community. Every submission strengthens our collective knowledge.
 
-![Salary Submit Page](https://github.com/Hazem-Ayman/Jobalatica/raw/main/docs/images/07-salary-submit-page.png)
+![Salary Submit Page](docs/images/07-salary-submit-page.png)
 
 **Anonymous Contribution:**
 - 📝 Quick, easy-to-complete form
